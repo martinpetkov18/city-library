@@ -1,5 +1,6 @@
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.sql.SQLException;
 
 import controller.*;
 import service.*;
@@ -16,11 +17,14 @@ public class App {
      * @param args the command line arguments
      * @throws ClassNotFoundException if the specified class cannot be found
      * @throws IOException if an I/O error occurs
+     * @throws SQLException
      */
-    public static void main(String[] args) throws ClassNotFoundException, IOException {
-        Persistency persistency = new FilePersistency();
+    public static void main(String[] args) throws ClassNotFoundException, IOException, SQLException {
+
+        Persistency filePersistency = new FilePersistency();
+        Persistency dbPersistency = new DBPersistency("root@localhost:3306/citylibrary");
         View view = new ConsoleView();
-        LibraryController controller = new LibraryController(persistency, view);
+        LibraryController controller = new LibraryController(filePersistency, view);
 
         try {
             controller.runLibraryController();
@@ -28,6 +32,8 @@ public class App {
             System.out.println("File not found.");
         } catch (IOException e) {
             System.out.println("An I/O error occurred.");
+        } finally {
+            dbPersistency.close();
         }
     }
 }

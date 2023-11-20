@@ -15,8 +15,25 @@ public class DBPersistency implements Persistency {
 
     private Connection connection;
 
-    public DBPersistency(String dbURL, String userName, String password) throws SQLException {
+    public DBPersistency(String dbURL) throws SQLException {
+        String userName = System.getenv("DB_USERNAME");
+        String password = System.getenv("DB_PASSWORD");
         this.connection = DriverManager.getConnection(dbURL, userName, password);
+
+        String createBooksTable = "CREATE TABLE IF NOT EXISTS Books (" +
+            "title VARCHAR(100) NOT NULL, " + 
+            "author VARCHAR(100) NOT NULL, " + 
+            "availableQuantity INT NOT NULL, " +
+            "totalQuantity INT NOT NULL, " + 
+            "PRIMARY KEY (title, author))";
+        PreparedStatement ps = connection.prepareStatement(createBooksTable);
+        ps.execute();
+
+        String createReadersTable = "CREATE TABLE IF NOT EXISTS Readers (" +
+            "name VARCHAR(100) NOT NULL PRIMARY KEY, " + 
+            "borrowedBooks VARCHAR(1000) NOT NULL)";
+        ps = connection.prepareStatement(createReadersTable);
+        ps.execute();
     }
 
     @Override
@@ -99,18 +116,9 @@ public class DBPersistency implements Persistency {
         return null;
     }
     
-    protected void finalize() {
+    public void close() throws SQLException {
         if (connection != null) {
-            try {
-                connection.close();
-            } catch (SQLException e) {
-            }
+            connection.close();
         }
     }
-    // protected void finalize() throws Throwable {
-    //     if (connection != null) {
-    //         connection.close();
-    //     }
-    //     super.finalize();
-    // }
 }

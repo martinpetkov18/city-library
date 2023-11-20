@@ -15,7 +15,7 @@ public interface Persistency {
      * @throws IOException If there is an error writing to the file.
      * @throws SQLException
      */
-    void saveData(List<?> list, String filename) throws IOException, SQLException;
+    public void saveData(List<?> list, String filename) throws IOException, SQLException;
     
     /**
      * Loads a list of objects from a file with the given filename.
@@ -25,5 +25,7 @@ public interface Persistency {
      * @throws ClassNotFoundException If the class of the serialized object cannot be found.
      * @throws SQLException
      */
-    List<?> loadData(String filename) throws IOException, ClassNotFoundException, SQLException;
+    public List<?> loadData(String filename) throws IOException, ClassNotFoundException, SQLException;
+
+    public void close() throws SQLException;
 }
