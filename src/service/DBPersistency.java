@@ -73,13 +73,11 @@ public class DBPersistency implements Persistency {
                 if (obj instanceof Reader) {
                     Reader reader = (Reader) obj;
                     
-                    // First try to update existing reader
                     PreparedStatement updatePs = connection.prepareStatement(updateQuery);
                     updatePs.setString(1, reader.getBorrowedBooks().toString());
                     updatePs.setString(2, reader.getName());
                     int updated = updatePs.executeUpdate();
 
-                    // If reader doesn't exist, insert new reader
                     if (updated == 0) {
                         PreparedStatement insertPs = connection.prepareStatement(insertQuery);
                         insertPs.setString(1, reader.getName());
@@ -97,11 +95,10 @@ public class DBPersistency implements Persistency {
     @Override
     public List<?> loadData(String tableName) throws SQLException {
         ResultSet resultSet;
-        if(tableName.equals("Books")) {
+        if (tableName.equals("Books")) {
             resultSet = connection.createStatement().executeQuery("SELECT * FROM Books");
             List<Book> books = new ArrayList<>();
             while (resultSet.next()) {
-                // assuming these are the names of your columns in Books table.
                 String title = resultSet.getString("title");
                 String author = resultSet.getString("author");
                 int availableQuantity = resultSet.getInt("availableQuantity");
@@ -111,7 +108,17 @@ public class DBPersistency implements Persistency {
             return books;
         }
 
-        // implement similar for Readers, based on your class structure and database schema.
+        else if (tableName.equals("Readers")) {
+            resultSet = connection.createStatement().executeQuery("SELECT * FROM Readers");
+            List<Reader> readers = new ArrayList<>();
+            while (resultSet.next()) {
+                String name = resultSet.getString("name");
+                String borrowedBooks = resultSet.getString("borrowedBooks");
+                // borrowedBooks should be a list of books, but it's stored as a string in the database
+                readers.add(new Reader(name, borrowedBooks));
+            }
+            return readers;
+        }
 
         return null;
     }
