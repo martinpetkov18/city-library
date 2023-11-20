@@ -3,8 +3,6 @@ package view;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 import java.util.Properties;
@@ -20,17 +18,12 @@ public class ConsoleView implements View {
     private Scanner scanner;
     private ResourceBundle messages;
 
-    private PrintWriter writer;
-
     /**
      * Constructs a new instance of the {@code ConsoleView} class.
      * Initializes the scanner, writer, and messages fields.
      */
     public ConsoleView() {
         this.scanner = new Scanner(System.in);
-
-        this.writer = new PrintWriter(new OutputStreamWriter(System.out, StandardCharsets.UTF_8), true);
-
         setLocaleFromProperties();
     }
 
@@ -84,7 +77,11 @@ public class ConsoleView implements View {
      * @param key the key of the message to display
      */
     public void displayPropertiesMessage(String key) {
-        System.out.println(messages.getString(key));
+        try{
+            System.out.println(new String(messages.getString(key).getBytes("ISO-8859-1"), "UTF-8"));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /**

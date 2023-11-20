@@ -5,7 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -36,7 +36,6 @@ public class LibraryController {
     private final Persistency persistency;
     private final View view;
 
-    
     /**
      * This class represents a controller for the library system, responsible for managing the
      * communication between the view and the model. It initializes the persistency, view, catalog, and
@@ -64,6 +63,8 @@ public class LibraryController {
             persistency.saveData(readers, READERS_FILENAME);
         } catch (IOException e) {
             view.displayMessage("Failed to save data: " + e.getMessage());
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 
@@ -93,6 +94,8 @@ public class LibraryController {
             this.readers.addAll(readers);
         } catch (FileNotFoundException e) {
            view.displayMessage("Failed to load data.");
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 
@@ -340,7 +343,7 @@ public class LibraryController {
                     .filter(r -> r.getName().equalsIgnoreCase(inputName))
                     .findFirst()
                     .orElseThrow(() -> new IllegalArgumentException("No such reader found."));
-    
+
         List<Book> borrowedBooks = reader.getBorrowedBooks();
     
         for (int i = 0; i < borrowedBooks.size(); i++) {
@@ -403,7 +406,7 @@ public class LibraryController {
      */
     private void updateLanguageInProperties(String newLanguage) throws IOException {
         Properties properties = new Properties();
-        try (InputStreamReader reader = new InputStreamReader(new FileInputStream(CONFIG_FILENAME), StandardCharsets.UTF_8)) {
+        try (InputStreamReader reader = new InputStreamReader(new FileInputStream(CONFIG_FILENAME))) {
             properties.load(reader);
             properties.setProperty("language", newLanguage);
             properties.store(new FileOutputStream(CONFIG_FILENAME), null);

@@ -1,6 +1,7 @@
 package service;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.List;
 
 /**
@@ -12,8 +13,9 @@ public interface Persistency {
      * @param list The list of objects to be saved.
      * @param filename The name of the file to save the data to.
      * @throws IOException If there is an error writing to the file.
+     * @throws SQLException
      */
-    void saveData(List<?> list, String filename) throws IOException;
+    void saveData(List<?> list, String filename) throws IOException, SQLException;
     
     /**
      * Loads a list of objects from a file with the given filename.
@@ -21,6 +23,7 @@ public interface Persistency {
      * @return The list of objects loaded from the file.
      * @throws IOException If there is an error reading from the file.
      * @throws ClassNotFoundException If the class of the serialized object cannot be found.
+     * @throws SQLException
      */
-    List<?> loadData(String filename) throws IOException, ClassNotFoundException;
+    List<?> loadData(String filename) throws IOException, ClassNotFoundException, SQLException;
 }
