@@ -22,9 +22,9 @@ public class App {
     public static void main(String[] args) throws ClassNotFoundException, IOException, SQLException {
 
         Persistency filePersistency = new FilePersistency();
-        Persistency dbPersistency = new DBPersistency("root@localhost:3306/citylibrary");
+        Persistency dbPersistency = new DBPersistency("jdbc:mysql://localhost:3306/citylibrary");
         View view = new ConsoleView();
-        LibraryController controller = new LibraryController(filePersistency, view);
+        LibraryController controller = new LibraryController(dbPersistency, view);
 
         try {
             controller.runLibraryController();

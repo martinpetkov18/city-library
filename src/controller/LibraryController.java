@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -26,8 +27,10 @@ import view.View;
  * It also handles the persistence of data to files.
  */
 public class LibraryController {
-    private static final String BOOKS_FILENAME = "books.txt";
-    private static final String READERS_FILENAME = "readers.txt";
+    // private static final String BOOKS_FILENAME = "books.txt";
+    // private static final String READERS_FILENAME = "readers.txt";
+    private static final String BOOKS_TABLE = "Books";
+    private static final String READERS_TABLE = "Readers";
     private static final String CONFIG_FILENAME = "config.properties";
 
     private boolean exit = false;
@@ -58,11 +61,25 @@ public class LibraryController {
      * Saves the current state of the library by persisting the books catalog and readers list to files.
      */
     private void saveLibraryState() {
+        saveBooksState(catalog.getBooks());
+        saveReadersState(readers);
+    }
+
+    private void saveBooksState(List<Book> books) {
         try {
-            persistency.saveData(catalog.getBooks(), BOOKS_FILENAME);
-            persistency.saveData(readers, READERS_FILENAME);
+            persistency.saveData(books, BOOKS_TABLE);
         } catch (IOException e) {
-            view.displayMessage("Failed to save data: " + e.getMessage());
+            view.displayMessage("Failed to save book data: " + e.getMessage());
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    private void saveReadersState(List<Reader> readers) {
+        try {
+            persistency.saveData(readers, READERS_TABLE);
+        } catch (IOException e) {
+            view.displayMessage("Failed to save reader data: " + e.getMessage());
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -75,21 +92,26 @@ public class LibraryController {
      */
     private void loadData() throws IOException, ClassNotFoundException{
         try {
-            List<?> loadedBooks = persistency.loadData(BOOKS_FILENAME);
+            List<?> loadedBooks = persistency.loadData(BOOKS_TABLE);
             List<Book> books = new ArrayList<>();
             for (Object obj : loadedBooks) {
                 if (obj instanceof Book) {
                     books.add((Book) obj);
+                } else {
+                    throw new IllegalArgumentException("Loaded object is not an instance of Reader");
                 }
             }
             books.forEach(catalog::addBook);
 
-            List<?> loadedReaders = persistency.loadData(READERS_FILENAME);
+            List<?> loadedReaders = persistency.loadData(READERS_TABLE);
             List<Reader> readers = new ArrayList<>();
             for (Object obj : loadedReaders) {
                 if (obj instanceof Reader) {
                     readers.add((Reader) obj);
+                } else {
+                    throw new IllegalArgumentException("Loaded object is not an instance of Reader");
                 }
+                
             }
             this.readers.addAll(readers);
         } catch (FileNotFoundException e) {
@@ -152,8 +174,9 @@ public class LibraryController {
         if (existingReader.isPresent()) {
             view.displayPropertiesMessage("readerAlreadyExists");
         } else {
-            readers.add(new Reader(readerName));
-            saveLibraryState();
+            Reader reader = new Reader(readerName);
+            readers.add(reader);
+            saveReadersState(Collections.singletonList(reader));
             view.displayPropertiesMessage("addedReader");
         }
     }
@@ -183,11 +206,13 @@ public class LibraryController {
             Book book = existingBook.get();
             book.setAvailableQuantity(book.getAvailableQuantity() + 1);
             book.setTotalQuantity(book.getTotalQuantity() + 1);
+            saveBooksState(Collections.singletonList(book));
         } else {
-            catalog.addBook(new Book(title, author, 1, 1));
+            Book book = new Book(title, author, 1, 1);
+            catalog.addBook(book);
+            saveBooksState(Collections.singletonList(book));
         }
 
-        saveLibraryState();
         view.displayPropertiesMessage("addedBook");
     }
 
