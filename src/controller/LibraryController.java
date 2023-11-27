@@ -278,12 +278,12 @@ public class LibraryController {
     private void showSortedCatalog() {
         String userInput = view.promptForTitleOrAuthor();
 
-        if (userInput.equalsIgnoreCase("title")) {
+        if (userInput.equalsIgnoreCase("1")) {
             view.displayMessage(catalog.getBooks().stream()
                     .sorted(Comparator.comparing(Book::getTitle))
                     .map(Book::getTitle)
                     .collect(Collectors.joining(", ")));
-        } else if (userInput.equalsIgnoreCase("author")) {
+        } else if (userInput.equalsIgnoreCase("2")) {
             view.displayMessage(catalog.getBooks().stream()
                     .sorted(Comparator.comparing(Book::getAuthor))
                     .map(book -> book.getAuthor() + " - " + book.getTitle())

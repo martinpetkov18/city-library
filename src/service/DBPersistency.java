@@ -18,100 +18,7 @@ public class DBPersistency implements Persistency {
     public DBPersistency(String dbURL) throws SQLException {
         String userName = System.getenv("DB_USERNAME");
         String password = System.getenv("DB_PASSWORD");
-        this.connection = DriverManager.getConnection(dbURL, userName, password);
-
-        String createBooksTable = "CREATE TABLE IF NOT EXISTS Books (" +
-            "title VARCHAR(100) NOT NULL, " + 
-            "author VARCHAR(100) NOT NULL, " + 
-            "availableQuantity INT NOT NULL, " +
-            "totalQuantity INT NOT NULL, " + 
-            "PRIMARY KEY (title, author))";
-        PreparedStatement ps = connection.prepareStatement(createBooksTable);
-        ps.execute();
-
-        String createReadersTable = "CREATE TABLE IF NOT EXISTS Readers (" +
-            "name VARCHAR(100) NOT NULL PRIMARY KEY)";
-        ps = connection.prepareStatement(createReadersTable);
-        ps.execute();
-
-        String createBorrowedBooksTable = "CREATE TABLE IF NOT EXISTS BorrowedBooks (" +
-            "name VARCHAR(100) NOT NULL, " +
-            "title VARCHAR(100) NOT NULL, " +
-            "author VARCHAR(100) NOT NULL, " +
-            "FOREIGN KEY (name) REFERENCES Readers(name)," +
-            "FOREIGN KEY (title, author) REFERENCES Books(title, author))";
-        ps = connection.prepareStatement(createBorrowedBooksTable);
-        ps.execute();
-
-        // Delete data from tables
-        String deleteBorrowedBooks = "DELETE FROM BorrowedBooks";
-        PreparedStatement deleteStatement = connection.prepareStatement(deleteBorrowedBooks);
-        deleteStatement.execute();
-
-        String deleteReaders = "DELETE FROM Readers";
-        deleteStatement = connection.prepareStatement(deleteReaders);
-        deleteStatement.execute();
-
-        String deleteBooks = "DELETE FROM Books";
-        deleteStatement = connection.prepareStatement(deleteBooks);
-        deleteStatement.execute();
-
-        // Add readers
-        String insertReaders = "INSERT IGNORE INTO Readers (name, borrowedBooks) VALUES (?, '')";
-        String[] readerNames = {"John", "Jane", "Alice", "Bob", "Charlie", "David", "Emma", "Frank", "Grace", "Harry"};
-        for (String readerName : readerNames) {
-            PreparedStatement preparedStatement = connection.prepareStatement(insertReaders);
-            preparedStatement.setString(1, readerName);
-            preparedStatement.executeUpdate();
-        }
-
-        // Add books
-        String insertBooks = "INSERT IGNORE INTO Books (title, author, availableQuantity, totalQuantity) VALUES (?, ?, 1, 1)";
-        String[][] booksData = {
-            {"To Kill a Mockingbird", "Harper Lee"},
-            {"1984", "George Orwell"},
-            {"Harry Potter and Philosopher's Stone", "J.K. Rowling"},
-            {"The Lord of the Rings", "J.R.R. Tolkien"},
-            {"The Great Gatsby", "F. Scott Fitzgerald"},
-            {"Pride and Prejudice", "Jane Austen"},
-            {"The Catcher in the Rye", "J.D. Salinger"},
-            {"The Hobbit", "J.R.R. Tolkien"},
-            {"Moby-Dick", "Herman Melville"},
-            {"War and Peace", "Leo Tolstoy"},
-            {"Ulysses", "James Joyce"},
-            {"The Odyssey", "Homer"},
-            {"Crime and Punishment", "Fyodor Dostoevsky"},
-            {"A Tale of Two Cities", "Charles Dickens"},
-            {"The Shining", "Stephen King"},
-            {"The Da Vinci Code", "Dan Brown"},
-            {"Les Miserables", "Victor Hugo"},
-            {"The Little Prince", "Antoine de Saint-Exup?ry"},
-            {"Animal Farm", "George Orwell"},
-            {"A Game of Thrones", "George R.R. Martin"}
-        };
-        for (String[] bookData : booksData) {
-            PreparedStatement preparedStatement = connection.prepareStatement(insertBooks);
-            preparedStatement.setString(1, bookData[0]);
-            preparedStatement.setString(2, bookData[1]);
-            preparedStatement.executeUpdate();
-        }
-
-        // Add to BorrowedBooks
-        String insertBorrowed = "INSERT IGNORE INTO BorrowedBooks (name, title, author) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE name=name";
-        String[][] borrowedData = {
-                {"John", "To Kill a Mockingbird", "Harper Lee"}, 
-                {"Jane", "1984", "George Orwell"},
-                {"Alice", "Harry Potter and Philosopher's Stone", "J.K. Rowling"},
-                {"Bob", "The Lord of the Rings", "J.R.R. Tolkien"},
-                {"Charlie", "The Great Gatsby", "F. Scott Fitzgerald"}
-        };
-        for (String[] borrowedPair : borrowedData) {
-            PreparedStatement preparedStatement = connection.prepareStatement(insertBorrowed);
-            preparedStatement.setString(1, borrowedPair[0]);
-            preparedStatement.setString(2, borrowedPair[1]);
-            preparedStatement.setString(3, borrowedPair[2]);
-            preparedStatement.executeUpdate();
-        } 
+        this.connection = DriverManager.getConnection(dbURL, userName, password); 
     }
 
     @Override
@@ -145,23 +52,26 @@ public class DBPersistency implements Persistency {
                 }
             }
         } else if (tableName.equals("Readers")) {
-            String updateQuery = "UPDATE Readers SET borrowedBooks = ? WHERE name = ?";
-            String insertQuery = "INSERT INTO Readers (name, borrowedBooks) SELECT ?,? FROM dual WHERE NOT EXISTS (SELECT * FROM Readers WHERE name = ?)";
+            String insertBorrowedBooksQuery = "INSERT INTO BorrowedBooks (name, title, author) SELECT ?,?,? FROM dual WHERE NOT EXISTS (SELECT * FROM BorrowedBooks WHERE name = ? AND title = ? AND author = ?)";
+            String updateReaderQuery = "INSERT INTO Readers (name) SELECT ? FROM dual WHERE NOT EXISTS (SELECT * FROM Readers WHERE name = ?)";
             for (Object obj : list) {
                 if (obj instanceof Reader) {
                     Reader reader = (Reader) obj;
-                    
-                    PreparedStatement updatePs = connection.prepareStatement(updateQuery);
-                    updatePs.setString(1, reader.getBorrowedBooks().toString());
-                    updatePs.setString(2, reader.getName());
-                    int updated = updatePs.executeUpdate();
 
-                    if (updated == 0) {
-                        PreparedStatement insertPs = connection.prepareStatement(insertQuery);
-                        insertPs.setString(1, reader.getName());
-                        insertPs.setString(2, reader.getBorrowedBooks().toString());
-                        insertPs.setString(3, reader.getName());
-                        insertPs.executeUpdate();
+                    PreparedStatement updateReaderPs = connection.prepareStatement(updateReaderQuery);
+                    updateReaderPs.setString(1, reader.getName());
+                    updateReaderPs.setString(2, reader.getName());
+                    updateReaderPs.executeUpdate();
+
+                    for (Book borrowedBook : reader.getBorrowedBooks()) {
+                        PreparedStatement insertBorrowedBooksPs = connection.prepareStatement(insertBorrowedBooksQuery);
+                        insertBorrowedBooksPs.setString(1, reader.getName());
+                        insertBorrowedBooksPs.setString(2, borrowedBook.getTitle());
+                        insertBorrowedBooksPs.setString(3, borrowedBook.getAuthor());
+                        insertBorrowedBooksPs.setString(4, reader.getName());
+                        insertBorrowedBooksPs.setString(5, borrowedBook.getTitle());
+                        insertBorrowedBooksPs.setString(6, borrowedBook.getAuthor());
+                        insertBorrowedBooksPs.executeUpdate();
                     }
                 }
             }
@@ -217,8 +127,6 @@ public class DBPersistency implements Persistency {
                 Reader reader = new Reader(name);
                 for (Book book : borrowedBooks) {
                     reader.borrowBook(book);
-                    System.out.println("Borrowed book: " + book.getTitle() + " by " + book.getAuthor());
-                    System.out.println(book.getAvailableQuantity());
                 }
                 readers.add(reader);
             }
