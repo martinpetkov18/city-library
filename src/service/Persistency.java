@@ -8,6 +8,11 @@ import java.util.List;
  * This interface defines the methods for saving and loading data from a file.
  */
 public interface Persistency {
+
+    enum Operation {
+        ADD_READER, ADD_BOOK, UPDATE_BOOK, BORROW_BOOK, RETURN_BOOK, 
+    }
+
     /**
      * Saves a list of objects to a file with the given filename.
      * @param list The list of objects to be saved.
@@ -16,6 +21,8 @@ public interface Persistency {
      * @throws SQLException
      */
     public void saveData(List<?> list, String filename) throws IOException, SQLException;
+
+    public void saveData(Object object, String filename, Operation operation) throws IOException, SQLException;
     
     /**
      * Loads a list of objects from a file with the given filename.

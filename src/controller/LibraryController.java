@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -60,14 +59,14 @@ public class LibraryController {
     /**
      * Saves the current state of the library by persisting the books catalog and readers list to files.
      */
-    private void saveLibraryState() {
-        saveBooksState(catalog.getBooks());
-        saveReadersState(readers);
+    private void saveLibraryState(Book book, Reader reader, Persistency.Operation bookOperation, Persistency.Operation readerOperation) {
+        saveBooksState(book, bookOperation);
+        saveReadersState(reader, readerOperation);
     }
 
-    private void saveBooksState(List<Book> books) {
+    private void saveBooksState(Book book, Persistency.Operation operation) {
         try {
-            persistency.saveData(books, BOOKS_TABLE);
+            persistency.saveData(book, BOOKS_TABLE, operation);
         } catch (IOException e) {
             view.displayMessage("Failed to save book data: " + e.getMessage());
         } catch (SQLException e) {
@@ -75,9 +74,9 @@ public class LibraryController {
         }
     }
     
-    private void saveReadersState(List<Reader> readers) {
+    private void saveReadersState(Reader reader, Persistency.Operation operation) {
         try {
-            persistency.saveData(readers, READERS_TABLE);
+            persistency.saveData(reader, READERS_TABLE, operation);
         } catch (IOException e) {
             view.displayMessage("Failed to save reader data: " + e.getMessage());
         } catch (SQLException e) {
@@ -90,36 +89,52 @@ public class LibraryController {
      * @throws IOException if an I/O error occurs while reading from the file.
      * @throws ClassNotFoundException if the class of a serialized object cannot be found.
      */
-    private void loadData() throws IOException, ClassNotFoundException{
+    private void loadData() throws IOException, ClassNotFoundException {
         try {
-            List<?> loadedBooks = persistency.loadData(BOOKS_TABLE);
-            List<Book> books = new ArrayList<>();
-            for (Object obj : loadedBooks) {
-                if (obj instanceof Book) {
-                    books.add((Book) obj);
-                } else {
-                    throw new IllegalArgumentException("Loaded object is not an instance of Reader");
-                }
-            }
-            books.forEach(catalog::addBook);
-
-            List<?> loadedReaders = persistency.loadData(READERS_TABLE);
-            List<Reader> readers = new ArrayList<>();
-            for (Object obj : loadedReaders) {
-                if (obj instanceof Reader) {
-                    readers.add((Reader) obj);
-                } else {
-                    throw new IllegalArgumentException("Loaded object is not an instance of Reader");
-                }
-                
-            }
-            this.readers.addAll(readers);
+            List<Book> books = loadBooksData();
+            List<Reader> readers = loadReadersData();
+            addBooksToCatalog(books);
+            addReadersToCollection(readers);
         } catch (FileNotFoundException e) {
-           view.displayMessage("Failed to load data.");
+            view.displayMessage("Failed to load data.");
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
+    
+    private List<Book> loadBooksData() throws SQLException, ClassNotFoundException, IOException {
+        List<?> loadedBooks = persistency.loadData(BOOKS_TABLE);
+        List<Book> books = new ArrayList<>();
+        for (Object obj : loadedBooks) {
+            if (obj instanceof Book) {
+                books.add((Book) obj);
+            } else {
+                throw new IllegalArgumentException("Loaded object is not an instance of Book");
+            }
+        }
+        return books;
+    }
+    
+    private List<Reader> loadReadersData() throws SQLException, ClassNotFoundException, IOException {
+        List<?> loadedReaders = persistency.loadData(READERS_TABLE);
+        List<Reader> readers = new ArrayList<>();
+        for (Object obj : loadedReaders) {
+            if (obj instanceof Reader) {
+                readers.add((Reader) obj);
+            } else {
+                throw new IllegalArgumentException("Loaded object is not an instance of Reader");
+            } 
+        }
+        return readers;
+    }
+    
+    private void addBooksToCatalog(List<Book> books) {
+        books.forEach(catalog::addBook);
+    }
+    
+    private void addReadersToCollection(List<Reader> readers) {
+        this.readers.addAll(readers);
+    } 
 
     /**
      * Runs the Library Controller.
@@ -176,7 +191,7 @@ public class LibraryController {
         } else {
             Reader reader = new Reader(readerName);
             readers.add(reader);
-            saveReadersState(Collections.singletonList(reader));
+            saveReadersState(reader, Persistency.Operation.ADD_READER);
             view.displayPropertiesMessage("addedReader");
         }
     }
@@ -206,11 +221,11 @@ public class LibraryController {
             Book book = existingBook.get();
             book.setAvailableQuantity(book.getAvailableQuantity() + 1);
             book.setTotalQuantity(book.getTotalQuantity() + 1);
-            saveBooksState(Collections.singletonList(book));
+            saveBooksState(book, Persistency.Operation.UPDATE_BOOK);
         } else {
             Book book = new Book(title, author, 1, 1);
             catalog.addBook(book);
-            saveBooksState(Collections.singletonList(book));
+            saveBooksState(book, Persistency.Operation.ADD_BOOK);
         }
 
         view.displayPropertiesMessage("addedBook");
@@ -302,20 +317,30 @@ public class LibraryController {
     private void searchBooks() {
         String userInput = view.promptForTitleOrAuthor();
         String searchQuery = view.promptForSearchQuery().toLowerCase();
-
+    
         if (userInput.equalsIgnoreCase("1")) {
-            view.displayMessage(catalog.getBooks().stream()
-                    .filter(book -> book.getTitle().toLowerCase().contains(searchQuery))
-                    .map(Book::getTitle)
-                    .collect(Collectors.joining(", ")));
+            String titles = filterBooksByTitle(searchQuery);
+            view.displayMessage(titles);
         } else if (userInput.equalsIgnoreCase("2")) {
-            view.displayMessage(catalog.getBooks().stream()
-                    .filter(book -> book.getAuthor().toLowerCase().contains(searchQuery))
-                    .map(book -> book.getAuthor() + " - " + book.getTitle())
-                    .collect(Collectors.joining(", ")));
+            String authors = filterBooksByAuthor(searchQuery);
+            view.displayMessage(authors);
         } else {
             view.displayPropertiesMessage("invalidChoice");
         }
+    }
+    
+    private String filterBooksByTitle(String searchQuery) {
+        return catalog.getBooks().stream()
+                    .filter(book -> book.getTitle().toLowerCase().contains(searchQuery))
+                    .map(Book::getTitle)
+                    .collect(Collectors.joining(", "));
+    }
+    
+    private String filterBooksByAuthor(String searchQuery) {
+        return catalog.getBooks().stream()
+                    .filter(book -> book.getAuthor().toLowerCase().contains(searchQuery))
+                    .map(book -> book.getAuthor() + " - " + book.getTitle())
+                    .collect(Collectors.joining(", "));
     }
 
     /**
@@ -353,7 +378,7 @@ public class LibraryController {
 
         Book book = availableBooks.get(bookIndex - 1);
         reader.borrowBook(book);
-        saveLibraryState();
+        saveLibraryState(book, reader, Persistency.Operation.UPDATE_BOOK, Persistency.Operation.BORROW_BOOK);
         view.displayPropertiesMessage("borrowedBook");
     }
 
@@ -390,7 +415,7 @@ public class LibraryController {
     
         Book book = borrowedBooks.get(bookIndex - 1);
         reader.returnBook(book);
-        saveLibraryState();
+        saveLibraryState(book, reader, Persistency.Operation.UPDATE_BOOK, Persistency.Operation.RETURN_BOOK);
         view.displayPropertiesMessage("returnedBook");
     }
 

@@ -1,5 +1,6 @@
 package service;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -22,69 +23,94 @@ public class DBPersistency implements Persistency {
     }
 
     @Override
-    public void saveData(List<?> list, String tableName) throws SQLException {
-        if (tableName.equals(BOOKS_TABLE)) {
-            handleBooks(list);
-        } else if (tableName.equals(READERS_TABLE)) {
-            handleReaders(list);
+    public void saveData(Object object, String tableName, Operation operation) throws SQLException {
+        if (tableName.equals(BOOKS_TABLE) && object instanceof Book) {
+            handleBooks((Book) object, operation);
+        } else if (tableName.equals(READERS_TABLE) && object instanceof Reader) {
+            handleReaders((Reader) object, operation);
         } else {
-            throw new IllegalArgumentException("Unknown table: " + tableName);
+            throw new IllegalArgumentException("Unknown table: " + tableName + " or object: " + object.getClass().getName());
         }
     }
 
-    private void handleBooks(List<?> list) throws SQLException {
-        String updateQuery = "UPDATE Books SET availableQuantity = ?, totalQuantity = ? WHERE title = ? AND author = ?";
-        String insertQuery = "INSERT IGNORE INTO Books (title, author, availableQuantity, totalQuantity) SELECT ?,?,?,? FROM dual WHERE NOT EXISTS (SELECT * FROM Books WHERE title = ? AND author = ?)";
-        PreparedStatement updatePs = connection.prepareStatement(updateQuery);
-        PreparedStatement insertPs = connection.prepareStatement(insertQuery);
-
-        for (Object obj : list) {
-            if (obj instanceof Book) {
-                Book book = (Book) obj;
-
-                updatePs.setInt(1, book.getAvailableQuantity());
-                updatePs.setInt(2, book.getTotalQuantity());
-                updatePs.setString(3, book.getTitle());
-                updatePs.setString(4, book.getAuthor());
-                int updated = updatePs.executeUpdate();
-
-                if (updated == 0) {
-                    insertPs.setString(1, book.getTitle());
-                    insertPs.setString(2, book.getAuthor());
-                    insertPs.setInt(3, book.getAvailableQuantity());
-                    insertPs.setInt(4, book.getTotalQuantity());
-                    insertPs.setString(5, book.getTitle());
-                    insertPs.setString(6, book.getAuthor());
-                    insertPs.executeUpdate();
-                }
-            }
+    private void handleBooks(Book book, Operation operation) throws SQLException {
+        if (operation == Operation.ADD_BOOK) {
+            insertBook(book);
+        } else if (operation == Operation.UPDATE_BOOK) {
+            updateBook(book);
+        } else {
+            throw new IllegalArgumentException("Unknown operation: " + operation);
+        }
+    }
+    
+    private void insertBook(Book book) throws SQLException {
+        String query = "INSERT IGNORE INTO Books (title, author, availableQuantity, totalQuantity) SELECT ?,?,?,? FROM dual WHERE NOT EXISTS (SELECT * FROM Books WHERE title = ? AND author = ?)";
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setString(1, book.getTitle());
+            ps.setString(2, book.getAuthor());
+            ps.setInt(3, book.getAvailableQuantity());
+            ps.setInt(4, book.getTotalQuantity());
+            ps.setString(5, book.getTitle());
+            ps.setString(6, book.getAuthor());
+            ps.executeUpdate();
         }
     }
 
-    private void handleReaders(List<?> list) throws SQLException {
+    private void updateBook(Book book) throws SQLException {
+        String query = "UPDATE Books SET availableQuantity = ?, totalQuantity = ? WHERE title = ? AND author = ?";
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setInt(1, book.getAvailableQuantity());
+            ps.setInt(2, book.getTotalQuantity());
+            ps.setString(3, book.getTitle());
+            ps.setString(4, book.getAuthor());
+            ps.executeUpdate();
+        }
+    }
+
+    private void handleReaders(Reader reader, Operation operation) throws SQLException {
+        if (operation == Operation.ADD_READER) {
+            insertReader(reader);
+        } else if (operation == Operation.BORROW_BOOK) {
+            insertBorrowedBooks(reader);
+        } else if (operation == Operation.RETURN_BOOK) {
+            deleteBorrowedBook(reader);
+        } else {
+            throw new IllegalArgumentException("Unknown operation: " + operation);
+        }
+    }
+    
+    private void insertReader(Reader reader) throws SQLException {
+        String insertReaderQuery = "INSERT INTO Readers (name) SELECT ? FROM dual WHERE NOT EXISTS (SELECT * FROM Readers WHERE name = ?)";
+        PreparedStatement updateReaderPs = connection.prepareStatement(insertReaderQuery);
+        
+        updateReaderPs.setString(1, reader.getName());
+        updateReaderPs.setString(2, reader.getName());
+        updateReaderPs.executeUpdate();
+    }
+    
+    private void insertBorrowedBooks(Reader reader) throws SQLException {
         String insertBorrowedBooksQuery = "INSERT INTO BorrowedBooks (name, title, author) SELECT ?,?,? FROM dual WHERE NOT EXISTS (SELECT * FROM BorrowedBooks WHERE name = ? AND title = ? AND author = ?)";
-        String updateReaderQuery = "INSERT INTO Readers (name) SELECT ? FROM dual WHERE NOT EXISTS (SELECT * FROM Readers WHERE name = ?)";
-        PreparedStatement updateReaderPs = connection.prepareStatement(updateReaderQuery);
         PreparedStatement insertBorrowedBooksPs = connection.prepareStatement(insertBorrowedBooksQuery);
+    
+        for (Book borrowedBook : reader.getBorrowedBooks()) {
+            insertBorrowedBooksPs.setString(1, reader.getName());
+            insertBorrowedBooksPs.setString(2, borrowedBook.getTitle());
+            insertBorrowedBooksPs.setString(3, borrowedBook.getAuthor());
+            insertBorrowedBooksPs.setString(4, reader.getName());
+            insertBorrowedBooksPs.setString(5, borrowedBook.getTitle());
+            insertBorrowedBooksPs.setString(6, borrowedBook.getAuthor());
+            insertBorrowedBooksPs.executeUpdate();
+        }
+    }
 
-        for (Object obj : list) {
-            if (obj instanceof Reader) {
-                Reader reader = (Reader) obj;
-
-                updateReaderPs.setString(1, reader.getName());
-                updateReaderPs.setString(2, reader.getName());
-                updateReaderPs.executeUpdate();
-
-                for (Book borrowedBook : reader.getBorrowedBooks()) {
-                    insertBorrowedBooksPs.setString(1, reader.getName());
-                    insertBorrowedBooksPs.setString(2, borrowedBook.getTitle());
-                    insertBorrowedBooksPs.setString(3, borrowedBook.getAuthor());
-                    insertBorrowedBooksPs.setString(4, reader.getName());
-                    insertBorrowedBooksPs.setString(5, borrowedBook.getTitle());
-                    insertBorrowedBooksPs.setString(6, borrowedBook.getAuthor());
-                    insertBorrowedBooksPs.executeUpdate();
-                }
-            }
+    private void deleteBorrowedBook(Reader reader) throws SQLException {
+        String deleteQuery = "DELETE FROM BorrowedBooks WHERE name = ? AND title = ? AND author = ?";
+        PreparedStatement deletePs = connection.prepareStatement(deleteQuery);
+        for (Book borrowedBook : reader.getBorrowedBooks()) {
+          deletePs.setString(1, reader.getName());
+          deletePs.setString(2, borrowedBook.getTitle());
+          deletePs.setString(3, borrowedBook.getAuthor());
+          deletePs.executeUpdate();
         }
     }
 
@@ -143,9 +169,13 @@ public class DBPersistency implements Persistency {
         return ps.executeQuery();
     }
 
+    @Override
     public void close() throws SQLException {
         if (connection != null) {
             connection.close();
         }
     }
+
+    @Override
+    public void saveData(List<?> list, String filename) throws IOException, SQLException {}
 }

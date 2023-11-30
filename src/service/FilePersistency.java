@@ -51,4 +51,7 @@ public class FilePersistency implements Persistency {
 
     @Override
     public void close() throws SQLException {}
-    }
+
+    @Override
+    public void saveData(Object object, String filename, Operation operation) throws IOException, SQLException {}
+}
