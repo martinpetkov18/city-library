@@ -23,11 +23,11 @@ public class DBPersistency implements Persistency {
     }
 
     @Override
-    public void saveData(Object object, String tableName, Operation operation) throws SQLException {
+    public void saveData(Object object, String tableName, Operation operation, Book book) throws SQLException {
         if (tableName.equals(BOOKS_TABLE) && object instanceof Book) {
             handleBooks((Book) object, operation);
         } else if (tableName.equals(READERS_TABLE) && object instanceof Reader) {
-            handleReaders((Reader) object, operation);
+            handleReaders((Reader) object, operation, book);
         } else {
             throw new IllegalArgumentException("Unknown table: " + tableName + " or object: " + object.getClass().getName());
         }
@@ -67,13 +67,13 @@ public class DBPersistency implements Persistency {
         }
     }
 
-    private void handleReaders(Reader reader, Operation operation) throws SQLException {
+    private void handleReaders(Reader reader, Operation operation, Book book) throws SQLException {
         if (operation == Operation.ADD_READER) {
             insertReader(reader);
         } else if (operation == Operation.BORROW_BOOK) {
-            insertBorrowedBooks(reader);
+            insertBorrowedBooks(reader, book);
         } else if (operation == Operation.RETURN_BOOK) {
-            deleteBorrowedBook(reader);
+            deleteBorrowedBook(reader, book);
         } else {
             throw new IllegalArgumentException("Unknown operation: " + operation);
         }
@@ -88,30 +88,27 @@ public class DBPersistency implements Persistency {
         updateReaderPs.executeUpdate();
     }
     
-    private void insertBorrowedBooks(Reader reader) throws SQLException {
+    private void insertBorrowedBooks(Reader reader, Book borrowedBook) throws SQLException {
         String insertBorrowedBooksQuery = "INSERT INTO BorrowedBooks (name, title, author) SELECT ?,?,? FROM dual WHERE NOT EXISTS (SELECT * FROM BorrowedBooks WHERE name = ? AND title = ? AND author = ?)";
         PreparedStatement insertBorrowedBooksPs = connection.prepareStatement(insertBorrowedBooksQuery);
     
-        for (Book borrowedBook : reader.getBorrowedBooks()) {
-            insertBorrowedBooksPs.setString(1, reader.getName());
-            insertBorrowedBooksPs.setString(2, borrowedBook.getTitle());
-            insertBorrowedBooksPs.setString(3, borrowedBook.getAuthor());
-            insertBorrowedBooksPs.setString(4, reader.getName());
-            insertBorrowedBooksPs.setString(5, borrowedBook.getTitle());
-            insertBorrowedBooksPs.setString(6, borrowedBook.getAuthor());
-            insertBorrowedBooksPs.executeUpdate();
-        }
+        insertBorrowedBooksPs.setString(1, reader.getName());
+        insertBorrowedBooksPs.setString(2, borrowedBook.getTitle());
+        insertBorrowedBooksPs.setString(3, borrowedBook.getAuthor());
+        insertBorrowedBooksPs.setString(4, reader.getName());
+        insertBorrowedBooksPs.setString(5, borrowedBook.getTitle());
+        insertBorrowedBooksPs.setString(6, borrowedBook.getAuthor());
+        insertBorrowedBooksPs.executeUpdate();
     }
 
-    private void deleteBorrowedBook(Reader reader) throws SQLException {
+    private void deleteBorrowedBook(Reader reader, Book borrowedBook) throws SQLException {
         String deleteQuery = "DELETE FROM BorrowedBooks WHERE name = ? AND title = ? AND author = ?";
         PreparedStatement deletePs = connection.prepareStatement(deleteQuery);
-        for (Book borrowedBook : reader.getBorrowedBooks()) {
-          deletePs.setString(1, reader.getName());
-          deletePs.setString(2, borrowedBook.getTitle());
-          deletePs.setString(3, borrowedBook.getAuthor());
-          deletePs.executeUpdate();
-        }
+
+        deletePs.setString(1, reader.getName());
+        deletePs.setString(2, borrowedBook.getTitle());
+        deletePs.setString(3, borrowedBook.getAuthor());
+        deletePs.executeUpdate();
     }
 
     @Override

@@ -61,12 +61,12 @@ public class LibraryController {
      */
     private void saveLibraryState(Book book, Reader reader, Persistency.Operation bookOperation, Persistency.Operation readerOperation) {
         saveBooksState(book, bookOperation);
-        saveReadersState(reader, readerOperation);
+        saveReadersState(reader, readerOperation, book);
     }
 
     private void saveBooksState(Book book, Persistency.Operation operation) {
         try {
-            persistency.saveData(book, BOOKS_TABLE, operation);
+            persistency.saveData(book, BOOKS_TABLE, operation, null);
         } catch (IOException e) {
             view.displayMessage("Failed to save book data: " + e.getMessage());
         } catch (SQLException e) {
@@ -74,9 +74,9 @@ public class LibraryController {
         }
     }
     
-    private void saveReadersState(Reader reader, Persistency.Operation operation) {
+    private void saveReadersState(Reader reader, Persistency.Operation operation, Book book) {
         try {
-            persistency.saveData(reader, READERS_TABLE, operation);
+            persistency.saveData(reader, READERS_TABLE, operation, book);
         } catch (IOException e) {
             view.displayMessage("Failed to save reader data: " + e.getMessage());
         } catch (SQLException e) {
@@ -191,7 +191,7 @@ public class LibraryController {
         } else {
             Reader reader = new Reader(readerName);
             readers.add(reader);
-            saveReadersState(reader, Persistency.Operation.ADD_READER);
+            saveReadersState(reader, Persistency.Operation.ADD_READER, null);
             view.displayPropertiesMessage("addedReader");
         }
     }

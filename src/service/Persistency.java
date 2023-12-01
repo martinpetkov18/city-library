@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
 
+import model.Book;
+
 /**
  * This interface defines the methods for saving and loading data from a file.
  */
@@ -22,7 +24,7 @@ public interface Persistency {
      */
     public void saveData(List<?> list, String filename) throws IOException, SQLException;
 
-    public void saveData(Object object, String filename, Operation operation) throws IOException, SQLException;
+    public void saveData(Object object, String filename, Operation operation, Book book) throws IOException, SQLException;
     
     /**
      * Loads a list of objects from a file with the given filename.

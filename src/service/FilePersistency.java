@@ -9,6 +9,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import model.Book;
+
 /**
  * This class provides file-based implementation of the Persistency interface.
  * It allows saving and loading data to and from a file.
@@ -53,5 +55,5 @@ public class FilePersistency implements Persistency {
     public void close() throws SQLException {}
 
     @Override
-    public void saveData(Object object, String filename, Operation operation) throws IOException, SQLException {}
+    public void saveData(Object object, String filename, Operation operation, Book book) throws IOException, SQLException {}
 }
