@@ -1,4 +1,4 @@
-<mvc:View xmlns:mvc="sap.ui.core.mvc" xmlns="sap.m" xmlns:core="sap.ui.core">
+<mvc:View xmlns:mvc="sap.ui.core.mvc" xmlns="sap.m" xmlns:core="sap.ui.core" controllerName="application.webapp.controller.MainView">
     <Panel>
         <Label text="Register a new reader"></Label>
         <Input id="readerName" placeholder="Enter reader's name"></Input>

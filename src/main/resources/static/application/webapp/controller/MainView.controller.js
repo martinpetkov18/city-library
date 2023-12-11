@@ -4,18 +4,23 @@ sap.ui.define([
 ], function (Controller, MessageToast) {
     "use strict";
 
+    console.log('MainView.controller.js Running');
+
     return Controller.extend("application.webapp.controller.MainView", {
         onInit: function () {
+            console.log('onInit Running');
             this.fetchReaders();
             this.fetchBooks();
         },
 
         onRegisterReader: function () {
+            
+            console.log('onRegisterReader Running');
             var readerName = this.getView().byId("readerName").getValue();
             var oModel = this.getView().getModel();
             $.ajax({
                 type: "POST",
-                url: "/api/readers",
+                url: "/library/register-reader",
                 data: { name: readerName },
                 dataType: "json",
                 success: function(data) {
@@ -35,7 +40,7 @@ sap.ui.define([
             var oModel = this.getView().getModel();
             $.ajax({
                 type: "POST",
-                url: "/api/books",
+                url: "/library/add-book",
                 data: { title: bookTitle, author: bookAuthor },
                 dataType: "json",
                 success: function(data) {
@@ -57,7 +62,7 @@ sap.ui.define([
             var oModel = this.getView().getModel();
             $.ajax({
                 type: "GET",
-                url: `/api/library/search-books?query=${searchQuery}&type=${searchType}`,
+                url: `/library/search-books?query=${searchQuery}&type=${searchType}`,
                 dataType: "json",
                 success: function(data) {
                     oModel.setProperty("/SearchResults", data);
@@ -74,7 +79,7 @@ sap.ui.define([
             var oModel = this.getView().getModel();
             $.ajax({
                 type: "POST",
-                url: `/api/books/borrow?reader=${readerName}&title=${bookTitle}`,
+                url: `/library/borrow-book?reader=${readerName}&title=${bookTitle}`,
                 dataType: "json",
                 success: function(data) {
                     MessageToast.show("Book borrowed successfully!");
@@ -95,7 +100,7 @@ sap.ui.define([
             var oModel = this.getView().getModel();
             $.ajax({
                 type: "POST",
-                url: `/api/books/return?reader=${readerName}&title=${bookTitle}`,
+                url: `/library/return-book?reader=${readerName}&title=${bookTitle}`,
                 dataType: "json",
                 success: function(data) {
                     MessageToast.show("Book returned successfully!");
@@ -114,10 +119,11 @@ sap.ui.define([
         },
 
         fetchReaders: function () {
+            console.log('Fetch Readers Running');
             var oModel = this.getView().getModel();
             $.ajax({
                 type: "GET",
-                url: "/api/readers",
+                url: "/library/readers",
                 dataType: "json",
                 success: function(data) {
                     oModel.setProperty("/Readers", data);
@@ -129,10 +135,11 @@ sap.ui.define([
         },
 
         fetchBooks: function () {
+            console.log('Fetch Books Running');
             var oModel = this.getView().getModel();
             $.ajax({
                 type: "GET",
-                url: "/api/books",
+                url: "/library/books",
                 dataType: "json",
                 success: function(data) {
                     oModel.setProperty("/Books", data);
