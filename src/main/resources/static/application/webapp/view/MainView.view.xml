@@ -1,0 +1,66 @@
+<mvc:View xmlns:mvc="sap.ui.core.mvc" xmlns="sap.m" xmlns:core="sap.ui.core">
+    <Panel>
+        <Label text="Register a new reader"></Label>
+        <Input id="readerName" placeholder="Enter reader's name"></Input>
+        <Button text="Register" press="onRegisterReader"></Button>
+    </Panel>
+
+    <Panel>
+        <Label text="All Registered Readers"></Label>
+        <List id="readersList" items="{path: '/Readers'}">
+            <StandardListItem title="{Name}"></StandardListItem>
+        </List>
+    </Panel>
+
+    <Panel>
+        <Label text="Add a new book"></Label>
+        <Input id="bookTitle" placeholder="Enter book's title"></Input>
+        <Input id="bookAuthor" placeholder="Enter book's author"></Input>
+        <Button text="Add Book" press="onAddBook"></Button>
+    </Panel>
+
+    <Panel>
+        <Label text="Library Catalog"></Label>
+        <List id="booksList" items="{path: '/Books'}">
+            <StandardListItem title="{Title}" description="{Author}" info="{AvailableQuantity} available"></StandardListItem>
+        </List>
+    </Panel>
+
+    <Panel>
+        <Label text="Search Books"></Label>
+        <RadioButtonGroup id="searchType" selectedIndex="0">
+            <buttons>
+                <RadioButton text="Title" selected="true"/>
+                <RadioButton text="Author" />
+            </buttons>
+        </RadioButtonGroup>
+        <SearchField id="searchField" search="onSearchBooks"></SearchField>
+        <List id="searchResultsList" items="{path: '/SearchResults'}">
+            <StandardListItem title="{Title}" description="{Author}"></StandardListItem>
+        </List>
+    </Panel>
+
+    <Panel>
+        <Label text="Borrow a book"></Label>
+        <Input id="borrowerName" placeholder="Enter reader's name"></Input>
+        <Input id="borrowerBookTitle" placeholder="Enter book's title"></Input>
+        <Button text="Borrow Book" press="onBorrowBook"></Button>
+    </Panel>
+
+    <Panel>
+        <Label text="Return a book"></Label>
+        <Input id="returningReaderName" placeholder="Enter reader's name"></Input>
+        <Input id="returningBookTitle" placeholder="Enter book's title"></Input>
+        <Button text="Return Book" press="onReturnBook"></Button>
+    </Panel>
+
+    <Panel>
+        <Label text="Change Language"></Label>
+        <Select id="languageSelect" change="onChangeLanguage">
+            <items>
+                <core:ListItem key="en" text="English" />
+                <core:ListItem key="bg" text="Bulgarian" />
+            </items>
+        </Select>
+    </Panel>
+</mvc:View>
