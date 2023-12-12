@@ -14,10 +14,10 @@ public class Book implements Serializable {
     @EmbeddedId
     private BookId id;
 
-    @Column(name = "available_quantity")
+    @Column(name = "availableQuantity")
     private int availableQuantity;
 
-    @Column(name = "total_quantity")
+    @Column(name = "totalQuantity")
     private int totalQuantity;
 
     public Book() {}

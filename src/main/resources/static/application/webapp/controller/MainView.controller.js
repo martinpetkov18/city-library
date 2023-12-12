@@ -1,16 +1,42 @@
 sap.ui.define([
     "sap/ui/core/mvc/Controller",
-    "sap/m/MessageToast"
-], function (Controller, MessageToast) {
+    "sap/m/MessageToast",
+    "sap/ui/model/json/JSONModel"
+], function (Controller, MessageToast, JSONModel) {
     "use strict";
 
     console.log('MainView.controller.js Running');
 
     return Controller.extend("application.webapp.controller.MainView", {
         onInit: function () {
+            var oModel = new JSONModel({
+                Readers: [],
+                Books: [],
+                SearchResults: []
+            });
+        
+            this.getView().setModel(oModel);
             console.log('onInit Running');
-            this.fetchReaders();
-            this.fetchBooks();
+            console.log("test 1");
+        
+            var that = this;
+            this.fetchReaders().then(function(data) {
+                var oModel2 = that.getView().getModel();
+                oModel2.setProperty("/Readers", data);
+                console.log(oModel2.getProperty("/Readers"));
+            })
+            .catch(function(err) {
+                console.log(err);
+             });
+        
+            this.fetchBooks().then(function(data) {
+                var oModel3 = that.getView().getModel();
+                oModel3.setProperty("/Books", data);
+                console.log(oModel3.getProperty("/Books"));
+            })
+            .catch(function(err) {
+                console.log(err);
+            });
         },
 
         onRegisterReader: function () {
@@ -120,34 +146,44 @@ sap.ui.define([
 
         fetchReaders: function () {
             console.log('Fetch Readers Running');
-            var oModel = this.getView().getModel();
-            $.ajax({
-                type: "GET",
-                url: "/library/readers",
-                dataType: "json",
-                success: function(data) {
-                    oModel.setProperty("/Readers", data);
-                },
-                error: function(err) {
-                    MessageToast.show(err.toString());
-                }
+            var that = this;
+        
+            return new Promise(function(resolve, reject) {
+                $.ajax({
+                    type: "GET",
+                    url: "/library/readers",
+                    dataType: "json",
+                    success: function(data) {
+                        console.log(data);
+                        resolve(data);
+                    },
+                    error: function(err) {
+                        MessageToast.show(err.toString());
+                        reject(err);
+                    }
+                });
             });
         },
-
+        
         fetchBooks: function () {
             console.log('Fetch Books Running');
-            var oModel = this.getView().getModel();
-            $.ajax({
-                type: "GET",
-                url: "/library/books",
-                dataType: "json",
-                success: function(data) {
-                    oModel.setProperty("/Books", data);
-                },
-                error: function(err) {
-                    MessageToast.show(err.toString());
-                }
+            var that = this;
+        
+            return new Promise(function(resolve, reject) {
+                $.ajax({
+                    type: "GET",
+                    url: "/library/books",
+                    dataType: "json",
+                    success: function(data) {
+                        console.log(data);
+                        resolve(data);
+                    },
+                    error: function(err) {
+                        MessageToast.show(err.toString());
+                        reject(err);
+                    }
+                });
             });
-        }
+        },
     });
 });

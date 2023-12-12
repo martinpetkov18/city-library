@@ -37,8 +37,6 @@ public class LibraryService {
         return readerRepository.findAll();
     }
 
-    
-
     @Transactional
     public void addBook(String title, String author) {
         Book.BookId bookId = new Book.BookId(title, author);

@@ -1,4 +1,4 @@
-<mvc:View xmlns:mvc="sap.ui.core.mvc" xmlns="sap.m" xmlns:core="sap.ui.core" controllerName="application.webapp.controller.MainView">
+<mvc:View id="myMainView" xmlns:mvc="sap.ui.core.mvc" xmlns="sap.m" xmlns:core="sap.ui.core" controllerName="application.webapp.controller.MainView">
     <Panel>
         <Label text="Register a new reader"></Label>
         <Input id="readerName" placeholder="Enter reader's name"></Input>
@@ -7,8 +7,8 @@
 
     <Panel>
         <Label text="All Registered Readers"></Label>
-        <List id="readersList" items="{path: '/Readers'}">
-            <StandardListItem title="{Name}"></StandardListItem>
+        <List id="readersList" items="{/Readers}">
+            <StandardListItem title="{name}"></StandardListItem>
         </List>
     </Panel>
 
@@ -21,8 +21,8 @@
 
     <Panel>
         <Label text="Library Catalog"></Label>
-        <List id="booksList" items="{path: '/Books'}">
-            <StandardListItem title="{Title}" description="{Author}" info="{AvailableQuantity} available"></StandardListItem>
+        <List id="booksList" items="{/Books}">
+            <StandardListItem title="{id/title}" description="{id/author}" info="{availableQuantity}"></StandardListItem>
         </List>
     </Panel>
 
