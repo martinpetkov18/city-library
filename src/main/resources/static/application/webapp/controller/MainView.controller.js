@@ -13,11 +13,11 @@ sap.ui.define([
                 Readers: [],
                 Books: [],
                 SearchResults: []
-            });
+        });
         
             this.getView().setModel(oModel);
             console.log('onInit Running');
-            console.log("test 1");
+            console.log("test 45");
         
             var that = this;
             this.fetchReaders().then(function(data) {
@@ -40,20 +40,25 @@ sap.ui.define([
         },
 
         onRegisterReader: function () {
-            
             console.log('onRegisterReader Running');
             var readerName = this.getView().byId("readerName").getValue();
             var oModel = this.getView().getModel();
+            console.log("-2: ");
+            
             $.ajax({
                 type: "POST",
                 url: "/library/register-reader",
                 data: { name: readerName },
                 dataType: "json",
                 success: function(data) {
+                    console.log("-1: ");
                     MessageToast.show("New Reader registered!");
+                    console.log("0: ");
                     oModel.getProperty("/Readers").push(data);
+                    console.log("1: ");
                     oModel.refresh(true);
-                },
+                    console.log("2: ");
+                }.bind(this),
                 error: function(err){
                     MessageToast.show(err.toString());
                 }
@@ -84,6 +89,8 @@ sap.ui.define([
             var searchQuery = searchEvent.getParameter("query");
             var selectedIndex = this.getView().byId("searchType").getSelectedIndex();
             var searchType = selectedIndex === 0 ? "title" : "author";
+            console.log("Search query: ", searchQuery);
+            console.log("Search type: ", searchType);
             
             var oModel = this.getView().getModel();
             $.ajax({
@@ -92,6 +99,13 @@ sap.ui.define([
                 dataType: "json",
                 success: function(data) {
                     oModel.setProperty("/SearchResults", data);
+                    oModel.refresh(true);
+
+                    console.log("Search results: ", data);
+
+                    if (data.length === 0) {
+                        MessageToast.show("No books found!");
+                    }
                 },
                 error: function(err){
                     MessageToast.show(err.toString());

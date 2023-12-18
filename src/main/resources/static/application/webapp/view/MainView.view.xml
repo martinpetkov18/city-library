@@ -7,7 +7,7 @@
 
     <Panel>
         <Label text="All Registered Readers"></Label>
-        <List id="readersList" items="{/Readers}">
+        <List growing="true" id="readersList" items="{/Readers}">
             <StandardListItem title="{name}"></StandardListItem>
         </List>
     </Panel>
@@ -21,7 +21,7 @@
 
     <Panel>
         <Label text="Library Catalog"></Label>
-        <List id="booksList" items="{/Books}">
+        <List growing="true" id="booksList" items="{/Books}">
             <StandardListItem title="{id/title}" description="{id/author}" info="{availableQuantity}"></StandardListItem>
         </List>
     </Panel>
@@ -35,8 +35,11 @@
             </buttons>
         </RadioButtonGroup>
         <SearchField id="searchField" search="onSearchBooks"></SearchField>
-        <List id="searchResultsList" items="{path: '/SearchResults'}">
-            <StandardListItem title="{Title}" description="{Author}"></StandardListItem>
+        <List growing="true" id="searchResultsList" items="{/SearchResults}">
+            <StandardListItem title="{id/title}" description="{id/author}" info="{availableQuantity}"></StandardListItem>
+            <StandardListItem title="{id/title}"></StandardListItem>
+            <StandardListItem title="Title" description="Author"></StandardListItem>
+            <StandardListItem title="Title"></StandardListItem>
         </List>
     </Panel>
 
