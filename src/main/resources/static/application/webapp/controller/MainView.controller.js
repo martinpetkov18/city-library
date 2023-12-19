@@ -17,7 +17,7 @@ sap.ui.define([
         
             this.getView().setModel(oModel);
             console.log('onInit Running');
-            console.log("test 2");
+            console.log("test 3");
         
             var that = this;
             this.fetchReaders().then(function(data) {
@@ -114,17 +114,17 @@ sap.ui.define([
         },
 
         onBorrowBook: function () {
-            var readerName = this.getView().byId("readerName").getValue();
-            var bookTitle = this.getView().byId("bookTitle").getValue();
+            var readerName = this.getView().byId("borrowerName").getValue();
+            var bookTitle = this.getView().byId("borrowerBookTitle").getValue();
             var oModel = this.getView().getModel();
+        
             $.ajax({
-                type: "POST",
-                url: `/library/borrow-book?reader=${readerName}&title=${bookTitle}`,
+                type: "PUT",
+                url: "/library/borrow-book",
+                data: {readerName: readerName, bookTitle: bookTitle},
                 dataType: "json",
                 success: function(data) {
                     MessageToast.show("Book borrowed successfully!");
-                    // TODO: You might need to manually adjust the quantity of the book in your model
-                    // Or you can re-fetch the data of the books and the reader
                     this.fetchBooks();
                     this.fetchReaders();
                 }.bind(this),
@@ -135,12 +135,14 @@ sap.ui.define([
         },
 
         onReturnBook: function () {
-            var readerName = this.getView().byId("readerName").getValue();
-            var bookTitle = this.getView().byId("bookTitle").getValue();
+            var readerName = this.getView().byId("borrowerName").getValue();
+            var bookTitle = this.getView().byId("borrowerBookTitle").getValue();
             var oModel = this.getView().getModel();
+
             $.ajax({
-                type: "POST",
-                url: `/library/return-book?reader=${readerName}&title=${bookTitle}`,
+                type: "PUT",
+                url: "/library/return-book",
+                data: {readerName: readerName, bookTitle: bookTitle},
                 dataType: "json",
                 success: function(data) {
                     MessageToast.show("Book returned successfully!");

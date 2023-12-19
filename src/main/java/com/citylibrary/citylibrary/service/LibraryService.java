@@ -64,11 +64,11 @@ public class LibraryService {
     }
 
     @Transactional
-    public void borrowBook(String readerName, String bookTitle, String bookAuthor) {
+    public void borrowBook(String readerName, String bookTitle) {
         Reader reader = readerRepository.findById(readerName)
                 .orElseThrow(() -> new IllegalArgumentException("No reader found with name " + readerName));
-        Book book = bookRepository.findById(new Book.BookId(bookTitle, bookAuthor))
-                .orElseThrow(() -> new IllegalArgumentException("No book found with Title " + bookTitle + " and Author " + bookAuthor));
+        Book book = bookRepository.findById_Title(bookTitle)
+                .orElseThrow(() -> new IllegalArgumentException("No book found with Title " + bookTitle));
 
         if (book.isAvailable()) {
             reader.borrowBook(book);
@@ -79,11 +79,11 @@ public class LibraryService {
     }
 
     @Transactional
-    public void returnBook(String readerName, String bookTitle, String bookAuthor) {
+    public void returnBook(String readerName, String bookTitle) {
         Reader reader = readerRepository.findById(readerName)
                 .orElseThrow(() -> new IllegalArgumentException("No reader found with name " + readerName));
-        Book book = bookRepository.findById(new Book.BookId(bookTitle, bookAuthor))
-                .orElseThrow(() -> new IllegalArgumentException("No book found with Title " + bookTitle + " and Author " + bookAuthor));
+        Book book = bookRepository.findById_Title(bookTitle)
+                .orElseThrow(() -> new IllegalArgumentException("No book found with Title " + bookTitle));
 
         if (reader.getBorrowedBooks().contains(book)) {
             reader.returnBook(book);

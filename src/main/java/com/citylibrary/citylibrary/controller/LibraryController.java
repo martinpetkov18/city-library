@@ -53,14 +53,14 @@ public class LibraryController {
     }
 
     @PutMapping("/borrow-book")
-    public String markBookAsBorrowed(@RequestParam String readerName, @RequestParam String bookTitle, @RequestParam String bookAuthor) {
-        libraryService.borrowBook(readerName, bookTitle, bookAuthor);
+    public String markBookAsBorrowed(@RequestParam String readerName, @RequestParam String bookTitle) {
+        libraryService.borrowBook(readerName, bookTitle);
         return "Borrowing of book succeeded";
     }
 
     @PutMapping("/return-book")
-    public String markBookAsReturned(@RequestParam String readerName, @RequestParam String bookTitle, @RequestParam String bookAuthor) {
-        libraryService.returnBook(readerName, bookTitle, bookAuthor);
+    public String markBookAsReturned(@RequestParam String readerName, @RequestParam String bookTitle) {
+        libraryService.returnBook(readerName, bookTitle);
         return "Returning of book succeeded";
     }
 
