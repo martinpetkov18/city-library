@@ -37,9 +37,6 @@
         <SearchField id="searchField" search="onSearchBooks"></SearchField>
         <List growing="true" id="searchResultsList" items="{/SearchResults}">
             <StandardListItem title="{id/title}" description="{id/author}" info="{availableQuantity}"></StandardListItem>
-            <StandardListItem title="{id/title}"></StandardListItem>
-            <StandardListItem title="Title" description="Author"></StandardListItem>
-            <StandardListItem title="Title"></StandardListItem>
         </List>
     </Panel>
 

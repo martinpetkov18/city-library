@@ -17,7 +17,7 @@ sap.ui.define([
         
             this.getView().setModel(oModel);
             console.log('onInit Running');
-            console.log("test 45");
+            console.log("test 2");
         
             var that = this;
             this.fetchReaders().then(function(data) {
