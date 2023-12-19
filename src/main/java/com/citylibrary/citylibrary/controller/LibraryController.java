@@ -63,5 +63,4 @@ public class LibraryController {
         libraryService.returnBook(readerName, bookTitle);
         return "Returning of book succeeded";
     }
-
 }

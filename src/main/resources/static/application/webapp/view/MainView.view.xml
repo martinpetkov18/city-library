@@ -31,7 +31,7 @@
         <RadioButtonGroup id="searchType" selectedIndex="0">
             <buttons>
                 <RadioButton text="Title" selected="true"/>
-                <RadioButton text="Author" />
+                <RadioButton text="Author"/>
             </buttons>
         </RadioButtonGroup>
         <SearchField id="searchField" search="onSearchBooks"></SearchField>

@@ -13,11 +13,11 @@ sap.ui.define([
                 Readers: [],
                 Books: [],
                 SearchResults: []
-        });
+            });
         
             this.getView().setModel(oModel);
             console.log('onInit Running');
-            console.log("test 3");
+            console.log("test 83");
         
             var that = this;
             this.fetchReaders().then(function(data) {
@@ -40,27 +40,24 @@ sap.ui.define([
         },
 
         onRegisterReader: function () {
-            console.log('onRegisterReader Running');
             var readerName = this.getView().byId("readerName").getValue();
             var oModel = this.getView().getModel();
-            console.log("-2: ");
-            
+            var that = this;
+        
             $.ajax({
                 type: "POST",
                 url: "/library/register-reader",
                 data: { name: readerName },
-                dataType: "json",
+
                 success: function(data) {
-                    console.log("-1: ");
                     MessageToast.show("New Reader registered!");
-                    console.log("0: ");
-                    oModel.getProperty("/Readers").push(data);
-                    console.log("1: ");
-                    oModel.refresh(true);
-                    console.log("2: ");
-                }.bind(this),
-                error: function(err){
-                    MessageToast.show(err.toString());
+                    that.fetchReaders().then(function(data) {
+                        var oModelReaders = that.getView().getModel();
+                        oModelReaders.setProperty("/Readers", data);
+                    })
+                },
+                error: function() {
+                    MessageToast.show('An error occurred.');
                 }
             });
         },
@@ -69,18 +66,22 @@ sap.ui.define([
             var bookTitle = this.getView().byId("bookTitle").getValue();
             var bookAuthor = this.getView().byId("bookAuthor").getValue();
             var oModel = this.getView().getModel();
+            var that = this;
+
             $.ajax({
                 type: "POST",
                 url: "/library/add-book",
                 data: { title: bookTitle, author: bookAuthor },
-                dataType: "json",
+
                 success: function(data) {
                     MessageToast.show("New Book added!");
-                    oModel.getProperty("/Books").push(data);
-                    oModel.refresh(true);
+                    that.fetchBooks().then(function(data) {
+                        var oModelBooks = that.getView().getModel();
+                        oModelBooks.setProperty("/Books", data);
+                    })
                 },
-                error: function(err){
-                    MessageToast.show(err.toString());
+                error: function() {
+                    MessageToast.show('An error occurred.');
                 }
             });
         },
@@ -98,13 +99,14 @@ sap.ui.define([
                 url: `/library/search-books?query=${searchQuery}&type=${searchType}`,
                 dataType: "json",
                 success: function(data) {
+                    console.log("search");
                     oModel.setProperty("/SearchResults", data);
                     oModel.refresh(true);
 
-                    console.log("Search results: ", data);
-
                     if (data.length === 0) {
                         MessageToast.show("No books found!");
+                    } else {
+                        MessageToast.show("Search completed!");
                     }
                 },
                 error: function(err){
