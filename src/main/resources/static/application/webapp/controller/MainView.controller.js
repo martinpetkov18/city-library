@@ -5,8 +5,6 @@ sap.ui.define([
 ], function (Controller, MessageToast, JSONModel) {
     "use strict";
 
-    console.log('MainView.controller.js Running');
-
     return Controller.extend("application.webapp.controller.MainView", {
         onInit: function () {
             var oModel = new JSONModel({
@@ -16,14 +14,12 @@ sap.ui.define([
             });
         
             this.getView().setModel(oModel);
-            console.log('onInit Running');
-            console.log("test 73");
+            console.log("test 93");
         
             var that = this;
             this.fetchReaders().then(function(data) {
                 var oModel2 = that.getView().getModel();
                 oModel2.setProperty("/Readers", data);
-                console.log(oModel2.getProperty("/Readers"));
             })
             .catch(function(err) {
                 console.log(err);
@@ -32,7 +28,6 @@ sap.ui.define([
             this.fetchBooks().then(function(data) {
                 var oModel3 = that.getView().getModel();
                 oModel3.setProperty("/Books", data);
-                console.log(oModel3.getProperty("/Books"));
             })
             .catch(function(err) {
                 console.log(err);
@@ -43,7 +38,7 @@ sap.ui.define([
             oSelect.setSelectedKey(sCurrentLanguage);
 
             var i18nModel = new sap.ui.model.resource.ResourceModel({
-                bundleUrl : "/src/main/resources/static/application.webapp/i18n/i18n.properties"
+                bundleUrl : "/application/webapp/i18n/i18n.properties"
            });
            this.getView().setModel(i18nModel, "i18n");
         },
@@ -99,8 +94,6 @@ sap.ui.define([
             var searchQuery = searchEvent.getParameter("query");
             var selectedIndex = this.getView().byId("searchType").getSelectedIndex();
             var searchType = selectedIndex === 0 ? "title" : "author";
-            console.log("Search query: ", searchQuery);
-            console.log("Search type: ", searchType);
             
             var oModel = this.getView().getModel();
             $.ajax({
@@ -108,7 +101,6 @@ sap.ui.define([
                 url: `/library/search-books?query=${searchQuery}&type=${searchType}`,
                 dataType: "json",
                 success: function(data) {
-                    console.log("search");
                     oModel.setProperty("/SearchResults", data);
                     oModel.refresh(true);
 
@@ -170,18 +162,15 @@ sap.ui.define([
             var selectedLanguage = languageSelectEvent.getParameter("selectedItem").getKey();
             var sUrl = window.location.href;
             
-            // Adding or replacing the sap-language URL parameter 
             if(sUrl.indexOf("sap-language") === -1)
-                sUrl += (sUrl.indexOf("?") === -1 ? "?" : "&") + "sap-language=" + selectedLanguage; // If there is no sap-language parameter, add one.
+                sUrl += (sUrl.indexOf("?") === -1 ? "?" : "&") + "sap-language=" + selectedLanguage;
             else
-                sUrl = sUrl.replace(/(sap-language=).*?(&|$)/, '$1' + selectedLanguage + '$2'); // If there is already a sap-language parameter, replace it with the new value.
-            
-            // Navigating to the new URL
+                sUrl = sUrl.replace(/(sap-language=).*?(&|$)/, '$1' + selectedLanguage + '$2');
+
             window.location.href = sUrl;
         },
 
         fetchReaders: function () {
-            console.log('Fetch Readers Running');
             var that = this;
         
             return new Promise(function(resolve, reject) {
@@ -190,7 +179,6 @@ sap.ui.define([
                     url: "/library/readers",
                     dataType: "json",
                     success: function(data) {
-                        console.log(data);
                         resolve(data);
                     },
                     error: function(err) {
@@ -202,7 +190,6 @@ sap.ui.define([
         },
         
         fetchBooks: function () {
-            console.log('Fetch Books Running');
             var that = this;
         
             return new Promise(function(resolve, reject) {
@@ -211,7 +198,6 @@ sap.ui.define([
                     url: "/library/books",
                     dataType: "json",
                     success: function(data) {
-                        console.log(data);
                         resolve(data);
                     },
                     error: function(err) {
