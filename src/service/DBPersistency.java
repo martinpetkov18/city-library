@@ -18,22 +18,22 @@ public class DBPersistency implements Persistency {
     private static final String READERS_TABLE = "Readers";
     private Connection connection;
 
-    public DBPersistency(String dbURL) throws SQLException {
-        this.connection = DriverManager.getConnection(dbURL, System.getenv("DB_USERNAME"), System.getenv("DB_PASSWORD"));
+    public DBPersistency() throws SQLException {
+        this.connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/citylibrary", System.getenv("DB_USERNAME"), System.getenv("DB_PASSWORD"));
     }
 
     @Override
     public void saveData(Object object, String tableName, Operation operation, Book book) throws SQLException {
         if (tableName.equals(BOOKS_TABLE) && object instanceof Book) {
-            handleBooks((Book) object, operation);
+            processBooks((Book) object, operation);
         } else if (tableName.equals(READERS_TABLE) && object instanceof Reader) {
-            handleReaders((Reader) object, operation, book);
+            processReaders((Reader) object, operation, book);
         } else {
             throw new IllegalArgumentException("Unknown table: " + tableName + " or object: " + object.getClass().getName());
         }
     }
 
-    private void handleBooks(Book book, Operation operation) throws SQLException {
+    private void processBooks(Book book, Operation operation) throws SQLException {
         if (operation == Operation.ADD_BOOK) {
             insertBook(book);
         } else if (operation == Operation.UPDATE_BOOK) {
@@ -67,7 +67,7 @@ public class DBPersistency implements Persistency {
         }
     }
 
-    private void handleReaders(Reader reader, Operation operation, Book book) throws SQLException {
+    private void processReaders(Reader reader, Operation operation, Book book) throws SQLException {
         if (operation == Operation.ADD_READER) {
             insertReader(reader);
         } else if (operation == Operation.BORROW_BOOK) {

@@ -26,8 +26,8 @@ import view.View;
  * It also handles the persistence of data to files.
  */
 public class LibraryController {
-    // private static final String BOOKS_FILENAME = "books.txt";
-    // private static final String READERS_FILENAME = "readers.txt";
+    private static final String BOOKS_FILENAME = "books.txt";
+    private static final String READERS_FILENAME = "readers.txt";
     private static final String BOOKS_TABLE = "Books";
     private static final String READERS_TABLE = "Readers";
     private static final String CONFIG_FILENAME = "config.properties";
@@ -343,80 +343,58 @@ public class LibraryController {
                     .collect(Collectors.joining(", "));
     }
 
-    /**
-     * Prompts the user for a reader name and a book title, marks the selected book as borrowed by the selected reader,
-     * saves the library state, and displays a message indicating that the book has been borrowed.
-     * If the reader or book is not found, throws an IllegalArgumentException.
-     */
     private void markBookAsBorrowed() {
-        String inputName = view.promptForReaderName();
-        Reader reader = readers.stream()
-                    .filter(r -> r.getName().equalsIgnoreCase(inputName))
-                    .findFirst()
-                    .orElseThrow(() -> new IllegalArgumentException("No such reader found."));
-
+        Reader reader = getReaderByName();
         List<Book> availableBooks = catalog.getBooks().stream()
                     .filter(Book::isAvailable)
                     .collect(Collectors.toList());
-
-        for (int i = 0; i < availableBooks.size(); i++) {
-            view.displayMessage((i + 1) + ". " + availableBooks.get(i).getTitle());
-        }
-
-        int bookIndex = -1;
-        while (bookIndex < 1 || bookIndex > availableBooks.size()) {
-            String input = view.promptForBookIndex();
-            try {
-                bookIndex = Integer.parseInt(input);
-            } catch (NumberFormatException e) {
-                view.displayMessage("Invalid input. Please enter a number.");
-            }
-            if (bookIndex < 1 || bookIndex > availableBooks.size()) {
-                view.displayMessage("Invalid index. Please enter a number between 1 and " + availableBooks.size() + ".");
-            }
-        }
-
-        Book book = availableBooks.get(bookIndex - 1);
+        displayBookList(availableBooks);
+        int bookIndex = validateAndGetIndex(availableBooks);
+        Book book = availableBooks.get(bookIndex);
         reader.borrowBook(book);
         saveLibraryState(book, reader, Persistency.Operation.UPDATE_BOOK, Persistency.Operation.BORROW_BOOK);
         view.displayPropertiesMessage("borrowedBook");
     }
-
-    /**
-     * Allows a reader to return a borrowed book. Prompts the user for the reader's name and displays a list of borrowed books to choose from.
-     * Once the user selects a book, it is marked as returned and the library state is saved.
-     * If the reader or book is not found, an IllegalArgumentException is thrown.
-     */
+    
     private void markBookAsReturned() {
-        String inputName = view.promptForReaderName();
-        Reader reader = readers.stream()
-                    .filter(r -> r.getName().equalsIgnoreCase(inputName))
-                    .findFirst()
-                    .orElseThrow(() -> new IllegalArgumentException("No such reader found."));
-
+        Reader reader = getReaderByName();
         List<Book> borrowedBooks = reader.getBorrowedBooks();
-    
-        for (int i = 0; i < borrowedBooks.size(); i++) {
-            view.displayMessage((i + 1) + ". " + borrowedBooks.get(i).getTitle());
+        displayBookList(borrowedBooks);
+        int bookIndex = validateAndGetIndex(borrowedBooks);
+        Book book = borrowedBooks.get(bookIndex);
+        reader.returnBook(book);
+        saveLibraryState(book, reader, Persistency.Operation.UPDATE_BOOK, Persistency.Operation.RETURN_BOOK);
+        view.displayPropertiesMessage("returnedBook");
+    }
+
+    private Reader getReaderByName() {
+        String inputName = view.promptForReaderName();
+        return readers.stream()
+                .filter(r -> r.getName().equalsIgnoreCase(inputName))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("No such reader found."));
+    }
+
+    private void displayBookList(List<Book> bookList) {
+        for (int i = 0; i < bookList.size(); i++) {
+            view.displayMessage((i + 1) + ". " + bookList.get(i).getTitle());
         }
-    
+    }
+
+    private int validateAndGetIndex(List<Book> bookList) {
         int bookIndex = -1;
-        while (bookIndex < 1 || bookIndex > borrowedBooks.size()) {
+        while (bookIndex < 1 || bookIndex > bookList.size()) {
             String input = view.promptForBookIndex();
             try {
                 bookIndex = Integer.parseInt(input);
             } catch (NumberFormatException e) {
                 view.displayMessage("Invalid input. Please enter a number.");
             }
-            if (bookIndex < 1 || bookIndex > borrowedBooks.size()) {
-                view.displayMessage("Invalid index. Please enter a number between 1 and " + borrowedBooks.size() + ".");
+            if (bookIndex < 1 || bookIndex > bookList.size()) {
+                view.displayMessage("Invalid index. Please enter a number between 1 and " + bookList.size() + ".");
             }
         }
-    
-        Book book = borrowedBooks.get(bookIndex - 1);
-        reader.returnBook(book);
-        saveLibraryState(book, reader, Persistency.Operation.UPDATE_BOOK, Persistency.Operation.RETURN_BOOK);
-        view.displayPropertiesMessage("returnedBook");
+        return bookIndex - 1;
     }
 
     /**
