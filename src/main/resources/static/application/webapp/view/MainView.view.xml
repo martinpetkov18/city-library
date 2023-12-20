@@ -1,37 +1,37 @@
 <mvc:View id="myMainView" xmlns:mvc="sap.ui.core.mvc" xmlns="sap.m" xmlns:core="sap.ui.core" controllerName="application.webapp.controller.MainView">
     <Panel>
-        <Label text="Register a new reader"></Label>
-        <Input id="readerName" placeholder="Enter reader's name"></Input>
-        <Button text="Register" press="onRegisterReader"></Button>
+        <Label text="{i18n>registerNewReader}"></Label>
+        <Input id="readerName" placeholder="{i18n>enterReaderName}"></Input>
+        <Button text="{i18n>register}" press="onRegisterReader"></Button>
     </Panel>
 
     <Panel>
-        <Label text="All Registered Readers"></Label>
+        <Label text="{i18n>allRegisteredReaders}"></Label>
         <List growing="true" id="readersList" items="{/Readers}">
             <StandardListItem title="{name}"></StandardListItem>
         </List>
     </Panel>
 
     <Panel>
-        <Label text="Add a new book"></Label>
-        <Input id="bookTitle" placeholder="Enter book's title"></Input>
-        <Input id="bookAuthor" placeholder="Enter book's author"></Input>
-        <Button text="Add Book" press="onAddBook"></Button>
+        <Label text="{i18n>addNewBook}"></Label>
+        <Input id="bookTitle" placeholder="{i18n>enterBookTitle}"></Input>
+        <Input id="bookAuthor" placeholder="{i18n>enterBookAuthor}"></Input>
+        <Button text="{i18n>addBook}" press="onAddBook"></Button>
     </Panel>
 
     <Panel>
-        <Label text="Library Catalog"></Label>
+        <Label text="{i18n>libraryCatalog}"></Label>
         <List growing="true" id="booksList" items="{/Books}">
             <StandardListItem title="{id/title}" description="{id/author}" info="{availableQuantity}"></StandardListItem>
         </List>
     </Panel>
 
     <Panel>
-        <Label text="Search Books"></Label>
+        <Label text="{i18n>searchBooks}"></Label>
         <RadioButtonGroup id="searchType" selectedIndex="0">
             <buttons>
-                <RadioButton text="Title" selected="true"/>
-                <RadioButton text="Author"/>
+                <RadioButton text="{i18n>title}" selected="true"/>
+                <RadioButton text="{i18n>author}"/>
             </buttons>
         </RadioButtonGroup>
         <SearchField id="searchField" search="onSearchBooks"></SearchField>
@@ -41,25 +41,25 @@
     </Panel>
 
     <Panel>
-        <Label text="Borrow a book"></Label>
-        <Input id="borrowerName" placeholder="Enter reader's name"></Input>
-        <Input id="borrowerBookTitle" placeholder="Enter book's title"></Input>
-        <Button text="Borrow Book" press="onBorrowBook"></Button>
+        <Label text="{i18n>borrowBook}"></Label>
+        <Input id="borrowerName" placeholder="{i18n>enterBorrowerName}"></Input>
+        <Input id="borrowerBookTitle" placeholder="{i18n>enterBorrowerBookTitle}"></Input>
+        <Button text="{i18n>borrowBook}" press="onBorrowBook"></Button>
     </Panel>
 
     <Panel>
-        <Label text="Return a book"></Label>
-        <Input id="returningReaderName" placeholder="Enter reader's name"></Input>
-        <Input id="returningBookTitle" placeholder="Enter book's title"></Input>
-        <Button text="Return Book" press="onReturnBook"></Button>
+        <Label text="{i18n>returnBook}"></Label>
+        <Input id="returningReaderName" placeholder="{i18n>enterReturningReaderName}"></Input>
+        <Input id="returningBookTitle" placeholder="{i18n>enterReturningBookTitle}"></Input>
+        <Button text="{i18n>returnBook}" press="onReturnBook"></Button>
     </Panel>
 
     <Panel>
-        <Label text="Change Language"></Label>
+        <Label text="{i18n>changeLanguage}"></Label>
         <Select id="languageSelect" change="onChangeLanguage">
             <items>
-                <core:ListItem key="en" text="English" />
-                <core:ListItem key="bg" text="Bulgarian" />
+                <core:ListItem key="en" text="{i18n>english}" />
+                <core:ListItem key="bg" text="{i18n>bulgarian}" />
             </items>
         </Select>
     </Panel>

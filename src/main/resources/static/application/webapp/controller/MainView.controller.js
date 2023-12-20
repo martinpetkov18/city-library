@@ -17,7 +17,7 @@ sap.ui.define([
         
             this.getView().setModel(oModel);
             console.log('onInit Running');
-            console.log("test 83");
+            console.log("test 73");
         
             var that = this;
             this.fetchReaders().then(function(data) {
@@ -37,6 +37,15 @@ sap.ui.define([
             .catch(function(err) {
                 console.log(err);
             });
+
+            var sCurrentLanguage = sap.ui.getCore().getConfiguration().getLanguage();
+            var oSelect = this.byId("languageSelect");
+            oSelect.setSelectedKey(sCurrentLanguage);
+
+            var i18nModel = new sap.ui.model.resource.ResourceModel({
+                bundleUrl : "/src/main/resources/static/application.webapp/i18n/i18n.properties"
+           });
+           this.getView().setModel(i18nModel, "i18n");
         },
 
         onRegisterReader: function () {
@@ -159,7 +168,16 @@ sap.ui.define([
 
         onChangeLanguage: function (languageSelectEvent) {
             var selectedLanguage = languageSelectEvent.getParameter("selectedItem").getKey();
-            // Here you need to implement the SAPUI5 language change according to https://sapui5.hana.ondemand.com/#/topic/8f93bf2a04ee4ca5b0b5a629bad55760.html
+            var sUrl = window.location.href;
+            
+            // Adding or replacing the sap-language URL parameter 
+            if(sUrl.indexOf("sap-language") === -1)
+                sUrl += (sUrl.indexOf("?") === -1 ? "?" : "&") + "sap-language=" + selectedLanguage; // If there is no sap-language parameter, add one.
+            else
+                sUrl = sUrl.replace(/(sap-language=).*?(&|$)/, '$1' + selectedLanguage + '$2'); // If there is already a sap-language parameter, replace it with the new value.
+            
+            // Navigating to the new URL
+            window.location.href = sUrl;
         },
 
         fetchReaders: function () {
