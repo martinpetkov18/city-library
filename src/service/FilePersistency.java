@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import model.Book;
+import model.Reader;
 
 /**
  * This class provides file-based implementation of the Persistency interface.
@@ -24,8 +25,7 @@ public class FilePersistency implements Persistency {
      * @param filename the name of the file to save to
      * @throws IOException if an I/O error occurs while saving the data
      */
-    @Override
-    public void saveData(List<?> list, String filename) throws IOException {
+    private void saveData(List<?> list, String filename) throws IOException {
         FileOutputStream fileOut = new FileOutputStream(filename);
         ObjectOutputStream out = new ObjectOutputStream(fileOut);
         out.writeObject(list);
@@ -33,27 +33,46 @@ public class FilePersistency implements Persistency {
         fileOut.close();
     }
 
-    /**
-     * Loads a list of objects from the specified file.
-     *
-     * @param filename the name of the file to load from
-     * @return the list of objects loaded from the file
-     * @throws IOException            if an I/O error occurs while loading the data
-     * @throws ClassNotFoundException if the class of a serialized object cannot be found
-     */
     @Override
-    public List<?> loadData(String filename) throws IOException, ClassNotFoundException {
-        FileInputStream fileIn = new FileInputStream(filename);
-        ObjectInputStream in = new ObjectInputStream(fileIn);
-        List<?> list = (ArrayList<?>) in.readObject();
-        in.close();
-        fileIn.close();
-        return list;
+    public void saveBooks(List<Book> books) throws IOException, SQLException {
+        saveData(books, "books.txt");
     }
 
     @Override
-    public void close() throws SQLException {}
+    public void saveReaders(List<Reader> readers) throws IOException, SQLException {
+        saveData(readers, "readers.txt");
+    }
+
+    private <T> List<T> loadData(String filename, Class<T> typeClass) throws IOException, ClassNotFoundException {
+        FileInputStream fileIn = new FileInputStream(filename);
+        ObjectInputStream in = new ObjectInputStream(fileIn);
+        List<?> data = (List<?>) in.readObject();
+        List<T> result = new ArrayList<>(data.size());
+        for (Object item : data) {
+            if (typeClass.isInstance(item)) {
+                result.add(typeClass.cast(item));
+            }
+        }
+        in.close();
+        fileIn.close();
+        return result;
+    }
+    
+    @Override
+    public List<Book> loadBooks() throws IOException, ClassNotFoundException, SQLException {
+        return loadData("books.txt", Book.class);
+    }
+    
+    @Override
+    public List<Reader> loadReaders() throws IOException, ClassNotFoundException, SQLException {
+        return loadData("readers.txt", Reader.class);
+    }
 
     @Override
-    public void saveData(Object object, String filename, Operation operation, Book book) throws IOException, SQLException {}
+    public String getType() {
+        return "File";
+    }
+
+    @Override
+    public void close() {}
 }
