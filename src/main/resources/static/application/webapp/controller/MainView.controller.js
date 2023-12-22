@@ -4,157 +4,85 @@ sap.ui.define([
     "sap/ui/model/json/JSONModel"
 ], function (Controller, MessageToast, JSONModel) {
     "use strict";
-
     return Controller.extend("application.webapp.controller.MainView", {
         onInit: function () {
-            var oModel = new JSONModel({
+            const oModel = new JSONModel({
                 Readers: [],
                 Books: [],
                 SearchResults: []
             });
-        
+
+            console.log("test 3");
+
             this.getView().setModel(oModel);
-            console.log("test 93");
-        
-            var that = this;
-            this.fetchReaders().then(function(data) {
-                var oModel2 = that.getView().getModel();
-                oModel2.setProperty("/Readers", data);
-            })
-            .catch(function(err) {
-                console.log(err);
-             });
-        
-            this.fetchBooks().then(function(data) {
-                var oModel3 = that.getView().getModel();
-                oModel3.setProperty("/Books", data);
-            })
-            .catch(function(err) {
-                console.log(err);
-            });
 
-            var sCurrentLanguage = sap.ui.getCore().getConfiguration().getLanguage();
-            var oSelect = this.byId("languageSelect");
-            oSelect.setSelectedKey(sCurrentLanguage);
+            this.fetchReaders().then(data => oModel.setProperty("/Readers", data)).catch(console.error);
+            this.fetchBooks().then(data => oModel.setProperty("/Books", data)).catch(console.error);
+            
+            const oSelect = this.byId("languageSelect");
+            oSelect.setSelectedKey(sap.ui.getCore().getConfiguration().getLanguage());
 
-            var i18nModel = new sap.ui.model.resource.ResourceModel({
-                bundleUrl : "/application/webapp/i18n/i18n.properties"
-           });
-           this.getView().setModel(i18nModel, "i18n");
+            this.getView().setModel(new sap.ui.model.resource.ResourceModel({
+                bundleUrl: "/application/webapp/i18n/i18n.properties"
+            }), "i18n");
         },
 
         onRegisterReader: function () {
-            var readerName = this.getView().byId("readerName").getValue();
-            var oModel = this.getView().getModel();
-            var that = this;
-        
-            $.ajax({
-                type: "POST",
+            this.fetchResult({
                 url: "/library/register-reader",
-                data: { name: readerName },
-
-                success: function(data) {
-                    MessageToast.show("New Reader registered!");
-                    that.fetchReaders().then(function(data) {
-                        var oModelReaders = that.getView().getModel();
-                        oModelReaders.setProperty("/Readers", data);
-                    })
-                },
-                error: function() {
-                    MessageToast.show('An error occurred.');
-                }
+                type: "POST",
+                data: { name: this.getView().byId("readerName").getValue() },
+                successMessage: "New Reader registered!",
+                updateMethod: this.fetchReaders,
+                listProp: "/Readers",
+                clearInputIds: ["readerName"]
             });
         },
 
         onAddBook: function () {
-            var bookTitle = this.getView().byId("bookTitle").getValue();
-            var bookAuthor = this.getView().byId("bookAuthor").getValue();
-            var oModel = this.getView().getModel();
-            var that = this;
-
-            $.ajax({
-                type: "POST",
+            this.fetchResult({
                 url: "/library/add-book",
-                data: { title: bookTitle, author: bookAuthor },
-
-                success: function(data) {
-                    MessageToast.show("New Book added!");
-                    that.fetchBooks().then(function(data) {
-                        var oModelBooks = that.getView().getModel();
-                        oModelBooks.setProperty("/Books", data);
-                    })
-                },
-                error: function() {
-                    MessageToast.show('An error occurred.');
-                }
+                type: "POST",
+                data: { title: this.getView().byId("bookTitle").getValue(), author: this.getView().byId("bookAuthor").getValue() },
+                successMessage: "New Book added!",
+                updateMethod: this.fetchBooks,
+                listProp: "/Books",
+                clearInputIds: ["bookTitle", "bookAuthor"]
             });
         },
 
         onSearchBooks: function (searchEvent) {
-            var searchQuery = searchEvent.getParameter("query");
-            var selectedIndex = this.getView().byId("searchType").getSelectedIndex();
-            var searchType = selectedIndex === 0 ? "title" : "author";
-            
-            var oModel = this.getView().getModel();
             $.ajax({
                 type: "GET",
-                url: `/library/search-books?query=${searchQuery}&type=${searchType}`,
+                url: `/library/search-books?query=${searchEvent.getParameter("query")}&type=${["title", "author"][this.getView().byId("searchType").getSelectedIndex()]}`,
                 dataType: "json",
-                success: function(data) {
-                    oModel.setProperty("/SearchResults", data);
-                    oModel.refresh(true);
-
-                    if (data.length === 0) {
-                        MessageToast.show("No books found!");
-                    } else {
-                        MessageToast.show("Search completed!");
-                    }
+                success: data => {
+                    this.getView().getModel().setProperty("/SearchResults", data);
+                    MessageToast.show(data.length === 0 ? "No books found!" : "Search completed!");
                 },
-                error: function(err){
-                    MessageToast.show(err.toString());
-                }
+                error: err => MessageToast.show(err.toString()),
             });
         },
 
         onBorrowBook: function () {
-            var readerName = this.getView().byId("borrowerName").getValue();
-            var bookTitle = this.getView().byId("borrowerBookTitle").getValue();
-            var oModel = this.getView().getModel();
-        
-            $.ajax({
-                type: "PUT",
+            this.fetchResult({
                 url: "/library/borrow-book",
-                data: {readerName: readerName, bookTitle: bookTitle},
-                dataType: "json",
-                success: function(data) {
-                    MessageToast.show("Book borrowed successfully!");
-                    this.fetchBooks();
-                    this.fetchReaders();
-                }.bind(this),
-                error: function(err){
-                    MessageToast.show(err.toString());
-                }
+                type: "PUT",
+                data: { readerName: this.getView().byId("borrowerName").getValue(), bookTitle: this.getView().byId("borrowerBookTitle").getValue() },
+                successMessage: "Book borrowed successfully!",
+                updateMethods: [this.fetchBooks, this.fetchReaders],
+                clearInputIds: ["borrowerName", "borrowerBookTitle"]
             });
         },
 
         onReturnBook: function () {
-            var readerName = this.getView().byId("borrowerName").getValue();
-            var bookTitle = this.getView().byId("borrowerBookTitle").getValue();
-            var oModel = this.getView().getModel();
-
-            $.ajax({
-                type: "PUT",
+            this.fetchResult({
                 url: "/library/return-book",
-                data: {readerName: readerName, bookTitle: bookTitle},
-                dataType: "json",
-                success: function(data) {
-                    MessageToast.show("Book returned successfully!");
-                    this.fetchBooks();
-                    this.fetchReaders();
-                }.bind(this),
-                error: function(err){
-                    MessageToast.show(err.toString());
-                }
+                type: "PUT",
+                data: { readerName: this.getView().byId("borrowerName").getValue(), bookTitle: this.getView().byId("borrowerBookTitle").getValue() },
+                successMessage: "Book returned successfully!",
+                updateMethods: [this.fetchBooks, this.fetchReaders],
+                clearInputIds: ["borrowerName", "borrowerBookTitle"]
             });
         },
 
@@ -171,40 +99,39 @@ sap.ui.define([
         },
 
         fetchReaders: function () {
-            var that = this;
-        
-            return new Promise(function(resolve, reject) {
+            return this.fetchData("/library/readers");
+        },
+
+        fetchBooks: function () {
+            return this.fetchData("/library/books");
+        },
+
+        fetchData: function (url) {
+            return new Promise((resolve, reject) => {
                 $.ajax({
                     type: "GET",
-                    url: "/library/readers",
+                    url,
                     dataType: "json",
-                    success: function(data) {
-                        resolve(data);
-                    },
-                    error: function(err) {
-                        MessageToast.show(err.toString());
-                        reject(err);
-                    }
+                    success: resolve,
+                    error: reject,
                 });
             });
         },
-        
-        fetchBooks: function () {
-            var that = this;
-        
-            return new Promise(function(resolve, reject) {
-                $.ajax({
-                    type: "GET",
-                    url: "/library/books",
-                    dataType: "json",
-                    success: function(data) {
-                        resolve(data);
-                    },
-                    error: function(err) {
-                        MessageToast.show(err.toString());
-                        reject(err);
-                    }
-                });
+
+        fetchResult: function({ url, type, data, successMessage, updateMethod, listProp, updateMethods=[], clearInputIds=[]}) {
+            $.ajax({
+                type,
+                url,
+                data,
+                success: () => {
+                    MessageToast.show(successMessage);
+                    clearInputIds.forEach(inputId => this.getView().byId(inputId).setValue(""));
+                    if(updateMethod)
+                        updateMethod.call(this).then(data => this.getView().getModel().setProperty(listProp, data));
+                    if(updateMethods.length > 0)
+                        updateMethods.forEach(method => method.call(this));
+                },
+                error: () => { MessageToast.show('An error occurred.') }
             });
         },
     });

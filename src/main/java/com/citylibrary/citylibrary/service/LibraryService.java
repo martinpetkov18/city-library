@@ -4,7 +4,6 @@ import com.citylibrary.citylibrary.model.Book;
 import com.citylibrary.citylibrary.model.Reader;
 import com.citylibrary.citylibrary.repository.BookRepository;
 import com.citylibrary.citylibrary.repository.ReaderRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,7 +15,6 @@ public class LibraryService {
     private final BookRepository bookRepository;
     private final ReaderRepository readerRepository;
 
-    @Autowired
     public LibraryService(
             BookRepository bookRepository,
             ReaderRepository readerRepository) {

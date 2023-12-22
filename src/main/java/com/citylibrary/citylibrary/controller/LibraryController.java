@@ -3,7 +3,6 @@ package com.citylibrary.citylibrary.controller;
 import com.citylibrary.citylibrary.model.Book;
 import com.citylibrary.citylibrary.model.Reader;
 import com.citylibrary.citylibrary.service.LibraryService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -14,7 +13,6 @@ public class LibraryController {
 
     private final LibraryService libraryService;
 
-    @Autowired
     public LibraryController(LibraryService libraryService) {
         this.libraryService = libraryService;
     }
