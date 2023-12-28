@@ -39,6 +39,24 @@ public class LibraryController {
         return libraryService.getAllBooks();
     }
 
+    // Add this for fetching available books
+    @GetMapping("/books/available")
+    public List<Book> getAvailableBooks() {
+        return libraryService.getAvailableBooks(); 
+    }
+
+    // Add this for fetching a specific reader's books
+    @GetMapping("/books/reader")
+    public List<Book> getReaderBooks(@RequestParam String readerName) {
+        return libraryService.getReaderBooks(readerName); 
+    }
+
+    // Add this for fetching sorted books
+    @GetMapping("/books/sorted")
+    public List<Book> getSortedBooks(@RequestParam String sortKey) {
+        return libraryService.getSortedBooks(sortKey); 
+    }
+
     @GetMapping("/search-books")
     public List<Book> searchBooks(@RequestParam String query, @RequestParam String type) {
         if ("title".equalsIgnoreCase(type)) {

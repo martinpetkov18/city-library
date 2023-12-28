@@ -21,6 +21,14 @@
 
     <Panel>
         <Label text="{i18n>libraryCatalog}"></Label>
+        <Select id="bookFilterSelect" change="onFilterBooks">
+            <items>
+                <core:Item key="all" text="{i18n>showAllBooks}" />
+                <core:Item key="available" text="{i18n>showAvailableBooks}" />
+                <core:Item key="reader" text="{i18n>showReaderBooks}" />
+                <core:Item key="sorted" text="{i18n>showSortedBooks}" />
+            </items>
+        </Select>
         <List growing="true" id="booksList" items="{/Books}">
             <StandardListItem title="{id/title}" description="{id/author}" info="{availableQuantity}"></StandardListItem>
         </List>

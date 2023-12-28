@@ -4,10 +4,14 @@ import com.citylibrary.citylibrary.model.Book;
 import com.citylibrary.citylibrary.model.Reader;
 import com.citylibrary.citylibrary.repository.BookRepository;
 import com.citylibrary.citylibrary.repository.ReaderRepository;
+
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class LibraryService {
@@ -51,6 +55,26 @@ public class LibraryService {
 
     public List<Book> getAllBooks() {
         return bookRepository.findAll();
+    }
+
+    public List<Book> getAvailableBooks() {
+        return bookRepository.findAll().stream().filter(Book::isAvailable).collect(Collectors.toList());
+    }
+
+    public List<Book> getReaderBooks(String readerName) {
+        Reader reader = readerRepository.findById(readerName)
+                .orElseThrow(() -> new IllegalArgumentException("No reader found with name " + readerName));
+        return new ArrayList<>(reader.getBorrowedBooks());
+    }
+
+    public List<Book> getSortedBooks(String sortKey) {
+        if ("title".equalsIgnoreCase(sortKey)) {
+            return bookRepository.findAll(Sort.by("id.title"));
+        } else if ("author".equalsIgnoreCase(sortKey)) {
+            return bookRepository.findAll(Sort.by("id.author"));
+        } else {
+            throw new IllegalArgumentException("Invalid sort key. Please choose 'title' or 'author'.");
+        }
     }
 
     public List<Book> searchBooksByTitle(String title) {
