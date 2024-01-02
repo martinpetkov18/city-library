@@ -12,7 +12,7 @@ sap.ui.define([
                 SearchResults: []
             });
 
-            console.log("test 63");
+            console.log("test 83");
 
             this.getView().setModel(oModel);
 
@@ -39,26 +39,22 @@ sap.ui.define([
             });
         },
 
-        onFilterBooks: function (oEvent) {
+        onShowBooks: function (oEvent) {
             var selectedKey = oEvent.getParameter("selectedItem").getKey();
             switch (selectedKey) {
                 case 'all':
-                    // Show all books
                     this.fetchBooks().then(data => this.getView().getModel().setProperty("/Books", data)).catch(console.error);
                     break;
                 case 'available':
-                    // Show all available books
                     this.fetchAvailableBooks().then(data => this.getView().getModel().setProperty("/Books", data)).catch(console.error);
                     break;
                 case 'reader':
-                    // Show a reader's books after a prompt for his name
                     var readerName = prompt("Please enter the reader's name:");
                     if (readerName) {
                         this.fetchReaderBooks(readerName).then(data => this.getView().getModel().setProperty("/Books", data)).catch(console.error);
                     }
                     break;
                 case 'sorted':
-                    // Show all books sorted by either title or author
                     var sortKey = prompt("Sort by 'title' or 'author'?");
                     if (sortKey) {
                         this.fetchSortedBooks(sortKey).then(data => this.getView().getModel().setProperty("/Books", data)).catch(console.error);
@@ -134,6 +130,18 @@ sap.ui.define([
             return this.fetchData("/library/books");
         },
 
+        fetchAvailableBooks: function () {
+            return this.fetchData("/library/books/available");
+        },
+
+        fetchReaderBooks: function (readerName) {
+            return this.fetchData("/library/books/reader?readerName=" + encodeURIComponent(readerName));
+        },
+
+        fetchSortedBooks: function (sortKey) {
+            return this.fetchData("/library/books/sorted?sortKey=" + encodeURIComponent(sortKey));
+        },
+
         fetchData: function (url) {
             return new Promise((resolve, reject) => {
                 $.ajax({
@@ -144,21 +152,6 @@ sap.ui.define([
                     error: reject,
                 });
             });
-        },
-
-        // Fetch available books
-        fetchAvailableBooks: function () {
-            return this.fetchData("/library/books/available");
-        },
-
-        // Fetch books for a specific reader
-        fetchReaderBooks: function (readerName) {
-            return this.fetchData("/library/books?reader=" + encodeURIComponent(readerName));
-        },
-
-        // Fetch books sorted by title or author
-        fetchSortedBooks: function (sortKey) {
-            return this.fetchData("/library/books?sort=" + encodeURIComponent(sortKey));
         },
 
         fetchResult: function({ url, type, data, successMessage, updateMethod, listProp, updateMethods=[], clearInputIds=[]}) {

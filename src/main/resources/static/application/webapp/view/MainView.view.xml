@@ -21,7 +21,7 @@
 
     <Panel>
         <Label text="{i18n>libraryCatalog}"></Label>
-        <Select id="bookFilterSelect" change="onFilterBooks">
+        <Select id="bookFilterSelect" change="onShowBooks">
             <items>
                 <core:Item key="all" text="{i18n>showAllBooks}" />
                 <core:Item key="available" text="{i18n>showAvailableBooks}" />
