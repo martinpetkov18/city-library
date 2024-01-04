@@ -1,0 +1,9 @@
+version: '3'
+services:
+  mysqldb:
+    image: mysql:8.0
+    environment:  
+      MYSQL_DATABASE: citylibrary
+      MYSQL_ROOT_PASSWORD: CityLibrary123
+    ports:
+      - 3306:3306
