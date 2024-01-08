@@ -21,14 +21,15 @@
 
     <Panel>
         <Label text="{i18n>libraryCatalog}"></Label>
-        <Select id="bookFilterSelect" change="onShowBooks">
+        <ComboBox id="bookFilterSelect" selectionChange="onShowBooks">
             <items>
                 <core:Item key="all" text="{i18n>showAllBooks}" />
                 <core:Item key="available" text="{i18n>showAvailableBooks}" />
                 <core:Item key="reader" text="{i18n>showReaderBooks}" />
-                <core:Item key="sorted" text="{i18n>showSortedBooks}" />
+                <core:Item key="sortedTitle" text="{i18n>showSortedBooksByTitle}" />
+                <core:Item key="sortedAuthor" text="{i18n>showSortedBooksByAuthor}" />
             </items>
-        </Select>
+        </ComboBox>
         <List growing="true" id="booksList" items="{/Books}">
             <StandardListItem title="{id/title}" description="{id/author}" info="{availableQuantity}"></StandardListItem>
         </List>

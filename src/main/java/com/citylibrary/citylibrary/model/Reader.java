@@ -54,11 +54,9 @@ public class Reader implements Serializable {
 
     public void borrowBook(Book book) {
         this.borrowedBooks.add(book);
-        book.setAvailableQuantity(book.getAvailableQuantity() - 1);
     }
 
     public void returnBook(Book book) {
         this.borrowedBooks.remove(book);
-        book.setAvailableQuantity(book.getAvailableQuantity() + 1);
     }
 }

@@ -12,7 +12,7 @@ sap.ui.define([
                 SearchResults: []
             });
 
-            console.log("test 83");
+            console.log("test 23");
 
             this.getView().setModel(oModel);
 
@@ -49,18 +49,43 @@ sap.ui.define([
                     this.fetchAvailableBooks().then(data => this.getView().getModel().setProperty("/Books", data)).catch(console.error);
                     break;
                 case 'reader':
-                    var readerName = prompt("Please enter the reader's name:");
-                    if (readerName) {
-                        this.fetchReaderBooks(readerName).then(data => this.getView().getModel().setProperty("/Books", data)).catch(console.error);
-                    }
+                    var dialog = new sap.m.Dialog({
+                        title: 'Enter the reader?s name:',
+                        type: 'Message',
+                        content: new sap.m.Input('submitDialogInput', {
+                          width: '100%',
+                          placeholder: 'Reader Name'
+                        }),
+                        beginButton: new sap.m.Button({
+                          text: 'Submit',
+                          press: function () {
+                            var readerName = sap.ui.getCore().byId('submitDialogInput').getValue();
+                            if (readerName){
+                               this.fetchReaderBooks(readerName).then(data => this.getView().getModel().setProperty("/Books", data)).catch(console.error);
+                            }
+                            dialog.close();
+                          }.bind(this)
+                        }),
+                        endButton: new sap.m.Button({
+                          text: 'Cancel',
+                          press: function () {
+                            dialog.close();
+                          }
+                        }),
+                        afterClose: function() {
+                          dialog.destroy();
+                        }
+                    });
+                    dialog.open();
                     break;
-                case 'sorted':
-                    var sortKey = prompt("Sort by 'title' or 'author'?");
-                    if (sortKey) {
-                        this.fetchSortedBooks(sortKey).then(data => this.getView().getModel().setProperty("/Books", data)).catch(console.error);
-                    }
+                case 'sortedTitle':
+                    this.fetchSortedBooks("title").then(data => this.getView().getModel().setProperty("/Books", data)).catch(console.error);
+                    break;
+                case 'sortedAuthor':
+                    this.fetchSortedBooks("author").then(data => this.getView().getModel().setProperty("/Books", data)).catch(console.error);
                     break;
             }
+            this.byId("bookFilterSelect").setSelectedKey(null); 
         },
 
         onAddBook: function () {
@@ -92,7 +117,10 @@ sap.ui.define([
             this.fetchResult({
                 url: "/library/borrow-book",
                 type: "PUT",
-                data: { readerName: this.getView().byId("borrowerName").getValue(), bookTitle: this.getView().byId("borrowerBookTitle").getValue() },
+                data: {
+                    readerName: this.getView().byId("borrowerName").getValue(),
+                    bookTitle: this.getView().byId("borrowerBookTitle").getValue()
+                },
                 successMessage: "Book borrowed successfully!",
                 updateMethods: [this.fetchBooks, this.fetchReaders],
                 clearInputIds: ["borrowerName", "borrowerBookTitle"]
@@ -103,10 +131,13 @@ sap.ui.define([
             this.fetchResult({
                 url: "/library/return-book",
                 type: "PUT",
-                data: { readerName: this.getView().byId("borrowerName").getValue(), bookTitle: this.getView().byId("borrowerBookTitle").getValue() },
+                data: { 
+                    readerName: this.getView().byId("returningReaderName").getValue(), 
+                    bookTitle: this.getView().byId("returningBookTitle").getValue() 
+                },
                 successMessage: "Book returned successfully!",
                 updateMethods: [this.fetchBooks, this.fetchReaders],
-                clearInputIds: ["borrowerName", "borrowerBookTitle"]
+                clearInputIds: ["returningReaderName", "returningBookTitle"]
             });
         },
 
