@@ -4,7 +4,7 @@ sap.ui.define([
     "sap/ui/model/json/JSONModel"
 ], function (Controller, MessageToast, JSONModel) {
     "use strict";
-    return Controller.extend("application.webapp.controller.MainView", {
+    return Controller.extend("myapp.controller.MainView", {
         onInit: function () {
             const oModel = new JSONModel({
                 Readers: [],
@@ -23,7 +23,7 @@ sap.ui.define([
             oSelect.setSelectedKey(sap.ui.getCore().getConfiguration().getLanguage());
 
             this.getView().setModel(new sap.ui.model.resource.ResourceModel({
-                bundleUrl: "/application/webapp/i18n/i18n.properties"
+                bundleUrl: "/i18n/i18n.properties"
             }), "i18n");
         },
 
