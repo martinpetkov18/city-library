@@ -1,8 +1,10 @@
 sap.ui.define([
     "sap/ui/core/mvc/Controller",
     "sap/m/MessageToast",
-    "sap/ui/model/json/JSONModel"
-], function (Controller, MessageToast, JSONModel) {
+    "sap/ui/model/json/JSONModel",
+    "sap/ui/model/Filter",
+    "sap/ui/model/FilterOperator"
+], function (Controller, MessageToast, JSONModel, Filter, FilterOperator) {
     "use strict";
     return Controller.extend("myapp.controller.MainView", {
         onInit: function () {
@@ -12,7 +14,7 @@ sap.ui.define([
                 SearchResults: []
             });
 
-            console.log("test 23");
+            console.log("test 63");
 
             this.getView().setModel(oModel);
 
@@ -37,6 +39,13 @@ sap.ui.define([
                 listProp: "/Readers",
                 clearInputIds: ["readerName"]
             });
+        },
+
+        onSearchChange: function(oEvent) {
+            var sQuery = oEvent.getParameter("newValue");
+            var oFilter = new Filter("name", FilterOperator.Contains, sQuery);
+            var oList = this.getView().byId("readersList");
+            oList.getBinding("items").filter(oFilter);
         },
 
         onShowBooks: function (oEvent) {

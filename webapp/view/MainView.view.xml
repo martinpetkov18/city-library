@@ -7,9 +7,12 @@
 
     <Panel>
         <Label text="{i18n>allRegisteredReaders}"></Label>
-        <List growing="true" id="readersList" items="{/Readers}">
-            <StandardListItem title="{name}"></StandardListItem>
-        </List>
+        <SearchField id="readerSearchField" liveChange="onSearchChange" width="100%" />
+        <ScrollContainer id="readerScrollbar" height="300px" vertical="true">
+            <List growing="true" id="readersList" items="{/Readers}">
+                <StandardListItem title="{name}"></StandardListItem>
+            </List>
+        </ScrollContainer>
     </Panel>
 
     <Panel>
@@ -30,9 +33,11 @@
                 <core:Item key="sortedAuthor" text="{i18n>showSortedBooksByAuthor}" />
             </items>
         </ComboBox>
-        <List growing="true" id="booksList" items="{/Books}">
-            <StandardListItem title="{id/title}" description="{id/author}" info="{availableQuantity}"></StandardListItem>
-        </List>
+        <ScrollContainer id="bookScrollbar" height="300px" vertical="true">
+            <List growing="true" id="booksList" items="{/Books}">
+                <StandardListItem title="{id/title}" description="{id/author}" info="{availableQuantity}"></StandardListItem>
+            </List>
+        </ScrollContainer>
     </Panel>
 
     <Panel>
