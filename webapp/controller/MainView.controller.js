@@ -14,8 +14,6 @@ sap.ui.define([
                 SearchResults: []
             });
 
-            console.log("test 63");
-
             this.getView().setModel(oModel);
 
             this.fetchReaders().then(data => oModel.setProperty("/Readers", data)).catch(console.error);

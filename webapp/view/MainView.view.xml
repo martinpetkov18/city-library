@@ -1,75 +1,125 @@
 <mvc:View id="myMainView" xmlns:mvc="sap.ui.core.mvc" xmlns="sap.m" xmlns:core="sap.ui.core" controllerName="myapp.controller.MainView">
-    <Panel>
-        <Label text="{i18n>registerNewReader}"></Label>
-        <Input id="readerName" placeholder="{i18n>enterReaderName}"></Input>
-        <Button text="{i18n>register}" press="onRegisterReader"></Button>
-    </Panel>
+
+    <FlexBox justifyContent="Center" alignItems="Center">
+        <Label text="City Library" class="title-label"/>
+    </FlexBox>
+
+
+    <FlexBox fitContainer="true" justifyContent="SpaceBetween" renderType="Bare" alignItems="Stretch" wrap="NoWrap" class="stretch-panel flex-container">
+         <items>
+            <Panel width="50%">
+                <VBox justifyContent="SpaceAround" alignItems="Stretch" fitContainer="true">
+                    <items>
+                        <Panel class="panel-spacing">
+                            <Label text="{i18n>registerNewReader}" class="bold-label"></Label>
+                            <Input id="readerName" placeholder="{i18n>enterReaderName}"></Input>
+                            <Button text="{i18n>register}" press="onRegisterReader"></Button>
+                        </Panel>
+                        <Panel class="stretch-panel">
+                            <Label text="{i18n>addNewBook}" class="bold-label" />
+                            <Input id="bookTitle" placeholder="{i18n>enterBookTitle}" />
+                            <Input id="bookAuthor" placeholder="{i18n>enterBookAuthor}" />
+                            <Button text="{i18n>addBook}" press="onAddBook" />
+                            <layoutData>
+                                <FlexItemData growFactor="1" />
+                            </layoutData>
+                        </Panel>
+                    </items>
+                </VBox>
+            </Panel>
+            <Panel width="50%" class="stretch-panel">
+                <Label text="{i18n>allRegisteredReaders}" class="bold-label"></Label>
+                <SearchField id="readerSearchField" liveChange="onSearchChange" width="100%" />
+                <ScrollContainer id="readerScrollbar" height="280.2px" vertical="true">
+                    <List id="readersList" items="{/Readers}">
+                        <StandardListItem title="{name}"></StandardListItem>
+                    </List>
+                </ScrollContainer>
+            </Panel>
+        </items>
+    </FlexBox>
+
+    <FlexBox fitContainer="true" justifyContent="SpaceBetween" renderType="Bare" alignItems="Stretch" wrap="NoWrap" class="stretch-panel flex-container">
+        <items>
+            <VBox 
+                class="stretch-panel leftBox" 
+                width="50%">
+                <items>
+                    <!-- Third Panel -->
+                    <Panel width="100%" class="stretch-panel">
+                        <Label text="{i18n>searchBooks}" class="bold-label" />
+                        <RadioButtonGroup id="searchType" selectedIndex="0">
+                            <buttons>
+                                <RadioButton text="{i18n>title}" selected="true" />
+                                <RadioButton text="{i18n>author}" />
+                            </buttons>
+                        </RadioButtonGroup>
+                        <SearchField id="searchField" search="onSearchBooks" />
+                        <ScrollContainer id="searchBookScrollbar" height="250px" vertical="true">
+                            <List id="searchResultsList" items="{/SearchResults}">
+                                <StandardListItem title="{id/title}" description="{id/author}" info="{availableQuantity}" />
+                            </List>
+                        </ScrollContainer>
+                        <layoutData>
+                            <FlexItemData growFactor="1" />
+                        </layoutData>
+                    </Panel>
+                </items>
+                <layoutData>
+                    <FlexItemData growFactor="1" />
+                </layoutData>
+            </VBox>
+
+            <!-- Second Panel -->
+            <Panel width="50%" class="stretch-panel">
+                <Label text="{i18n>libraryCatalog}" class="bold-label label-spacing" />
+                <ComboBox id="bookFilterSelect" selectionChange="onShowBooks">
+                    <items>
+                        <core:Item key="all" text="{i18n>showAllBooks}" />
+                        <core:Item key="available" text="{i18n>showAvailableBooks}" />
+                        <core:Item key="reader" text="{i18n>showReaderBooks}" />
+                        <core:Item key="sortedTitle" text="{i18n>showSortedBooksByTitle}" />
+                        <core:Item key="sortedAuthor" text="{i18n>showSortedBooksByAuthor}" />
+                    </items>
+                </ComboBox>
+                <ScrollContainer id="bookScrollbar" height="349.5px" vertical="true">
+                    <List id="booksList" items="{/Books}">
+                        <StandardListItem title="{id/title}" description="{id/author}" info="{availableQuantity}" />
+                    </List>
+                </ScrollContainer>
+                <layoutData>
+                    <FlexItemData growFactor="1" />
+                </layoutData>
+            </Panel>
+        </items>
+    </FlexBox>
+
+    <HBox width="100%">
+        <items>
+            <Panel>
+                <Label text="{i18n>borrowBook}" class="bold-label"></Label>
+                <Input id="borrowerName" placeholder="{i18n>enterBorrowerName}"></Input>
+                <Input id="borrowerBookTitle" placeholder="{i18n>enterBorrowerBookTitle}"></Input>
+                <Button text="{i18n>borrowBook}" press="onBorrowBook"></Button>
+                <layoutData>
+                    <FlexItemData growFactor="1" />
+                </layoutData>
+            </Panel>
+
+            <Panel>
+                <Label text="{i18n>returnBook}" class="bold-label"></Label>
+                <Input id="returningReaderName" placeholder="{i18n>enterReturningReaderName}"></Input>
+                <Input id="returningBookTitle" placeholder="{i18n>enterReturningBookTitle}"></Input>
+                <Button text="{i18n>returnBook}" press="onReturnBook"></Button>
+                <layoutData>
+                    <FlexItemData growFactor="1" />
+                </layoutData>
+            </Panel>
+        </items>
+    </HBox>
 
     <Panel>
-        <Label text="{i18n>allRegisteredReaders}"></Label>
-        <SearchField id="readerSearchField" liveChange="onSearchChange" width="100%" />
-        <ScrollContainer id="readerScrollbar" height="300px" vertical="true">
-            <List growing="true" id="readersList" items="{/Readers}">
-                <StandardListItem title="{name}"></StandardListItem>
-            </List>
-        </ScrollContainer>
-    </Panel>
-
-    <Panel>
-        <Label text="{i18n>addNewBook}"></Label>
-        <Input id="bookTitle" placeholder="{i18n>enterBookTitle}"></Input>
-        <Input id="bookAuthor" placeholder="{i18n>enterBookAuthor}"></Input>
-        <Button text="{i18n>addBook}" press="onAddBook"></Button>
-    </Panel>
-
-    <Panel>
-        <Label text="{i18n>libraryCatalog}"></Label>
-        <ComboBox id="bookFilterSelect" selectionChange="onShowBooks">
-            <items>
-                <core:Item key="all" text="{i18n>showAllBooks}" />
-                <core:Item key="available" text="{i18n>showAvailableBooks}" />
-                <core:Item key="reader" text="{i18n>showReaderBooks}" />
-                <core:Item key="sortedTitle" text="{i18n>showSortedBooksByTitle}" />
-                <core:Item key="sortedAuthor" text="{i18n>showSortedBooksByAuthor}" />
-            </items>
-        </ComboBox>
-        <ScrollContainer id="bookScrollbar" height="300px" vertical="true">
-            <List growing="true" id="booksList" items="{/Books}">
-                <StandardListItem title="{id/title}" description="{id/author}" info="{availableQuantity}"></StandardListItem>
-            </List>
-        </ScrollContainer>
-    </Panel>
-
-    <Panel>
-        <Label text="{i18n>searchBooks}"></Label>
-        <RadioButtonGroup id="searchType" selectedIndex="0">
-            <buttons>
-                <RadioButton text="{i18n>title}" selected="true"/>
-                <RadioButton text="{i18n>author}"/>
-            </buttons>
-        </RadioButtonGroup>
-        <SearchField id="searchField" search="onSearchBooks"></SearchField>
-        <List growing="true" id="searchResultsList" items="{/SearchResults}">
-            <StandardListItem title="{id/title}" description="{id/author}" info="{availableQuantity}"></StandardListItem>
-        </List>
-    </Panel>
-
-    <Panel>
-        <Label text="{i18n>borrowBook}"></Label>
-        <Input id="borrowerName" placeholder="{i18n>enterBorrowerName}"></Input>
-        <Input id="borrowerBookTitle" placeholder="{i18n>enterBorrowerBookTitle}"></Input>
-        <Button text="{i18n>borrowBook}" press="onBorrowBook"></Button>
-    </Panel>
-
-    <Panel>
-        <Label text="{i18n>returnBook}"></Label>
-        <Input id="returningReaderName" placeholder="{i18n>enterReturningReaderName}"></Input>
-        <Input id="returningBookTitle" placeholder="{i18n>enterReturningBookTitle}"></Input>
-        <Button text="{i18n>returnBook}" press="onReturnBook"></Button>
-    </Panel>
-
-    <Panel>
-        <Label text="{i18n>changeLanguage}"></Label>
+        <Label text="{i18n>changeLanguage}" class="bold-label label-spacing"></Label>
         <Select id="languageSelect" change="onChangeLanguage">
             <items>
                 <core:ListItem key="en" text="{i18n>english}" />

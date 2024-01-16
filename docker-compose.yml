@@ -6,7 +6,7 @@ services:
       MYSQL_DATABASE: citylibrary
       MYSQL_ROOT_PASSWORD: CityLibrary123
     ports:
-      - 3306:3306
+      - 3307:3306
     volumes:
       - dbdata:/var/lib/mysql
 
