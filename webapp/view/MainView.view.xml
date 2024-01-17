@@ -45,7 +45,6 @@
                 class="stretch-panel leftBox" 
                 width="50%">
                 <items>
-                    <!-- Third Panel -->
                     <Panel width="100%" class="stretch-panel">
                         <Label text="{i18n>searchBooks}" class="bold-label" />
                         <HBox>
@@ -54,7 +53,7 @@
                         </HBox>
                         <SearchField id="searchField" search="onSearchBooks" />
                         <ScrollContainer id="searchBookScrollbar" height="282px" vertical="true">
-                            <List id="searchResultsList" items="{/SearchResults}">
+                            <List id="searchResultsList" items="{/SearchResults}" class="list-display">
                                 <StandardListItem title="{id/title}" description="{id/author}" info="{availableQuantity}" />
                             </List>
                         </ScrollContainer>
@@ -68,7 +67,6 @@
                 </layoutData>
             </VBox>
 
-            <!-- Second Panel -->
             <Panel width="50%" class="stretch-panel">
                 <HBox alignItems="Center">
                     <Label text="{i18n>libraryCatalog}" class="bold-label label-spacing" />
@@ -94,7 +92,7 @@
         </items>
     </FlexBox>
 
-    <HBox width="100%">
+    <HBox width="100%" fitContainer="true">
         <items>
             <Panel>
                 <Label text="{i18n>borrowBook}" class="bold-label"></Label>
@@ -102,17 +100,16 @@
                 <Input id="borrowerBookTitle" placeholder="{i18n>enterBorrowerBookTitle}"></Input>
                 <Button text="{i18n>borrowBook}" press="onBorrowBook"></Button>
                 <layoutData>
-                    <FlexItemData growFactor="1" />
+                    <FlexItemData growFactor="1" baseSize="0%"/>
                 </layoutData>
             </Panel>
-
             <Panel>
                 <Label text="{i18n>returnBook}" class="bold-label"></Label>
                 <Input id="returningReaderName" placeholder="{i18n>enterReturningReaderName}"></Input>
                 <Input id="returningBookTitle" placeholder="{i18n>enterReturningBookTitle}"></Input>
                 <Button text="{i18n>returnBook}" press="onReturnBook"></Button>
                 <layoutData>
-                    <FlexItemData growFactor="1" />
+                    <FlexItemData growFactor="1" baseSize="0%" minWidth="200px"/>
                 </layoutData>
             </Panel>
         </items>

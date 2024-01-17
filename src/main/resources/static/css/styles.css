@@ -73,3 +73,7 @@
     font-style: italic !important;
     font-weight: bold !important;
 }
+
+.list-display .sapMListNoData {
+    display: none;
+}

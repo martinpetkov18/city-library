@@ -6,6 +6,7 @@ import com.citylibrary.citylibrary.repository.BookRepository;
 import com.citylibrary.citylibrary.repository.ReaderRepository;
 
 import org.springframework.data.domain.Sort;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,7 +28,7 @@ public class LibraryService {
     }
 
     @Transactional
-    public void registerReader(String name) {
+    public void registerReader(@NonNull String name) {
         if (readerRepository.existsById(name)) {
             throw new IllegalArgumentException("Reader already exists.");
         }
@@ -61,7 +62,7 @@ public class LibraryService {
         return bookRepository.findAll().stream().filter(Book::isAvailable).collect(Collectors.toList());
     }
 
-    public List<Book> getReaderBooks(String readerName) {
+    public List<Book> getReaderBooks(@NonNull String readerName) {
         Reader reader = readerRepository.findById(readerName)
                 .orElseThrow(() -> new IllegalArgumentException("No reader found with name " + readerName));
         return new ArrayList<>(reader.getBorrowedBooks());
@@ -86,7 +87,7 @@ public class LibraryService {
     }
 
     @Transactional
-    public void borrowBook(String readerName, String bookTitle) {
+    public void borrowBook(@NonNull String readerName, String bookTitle) {
         Reader reader = readerRepository.findById(readerName)
                 .orElseThrow(() -> new IllegalArgumentException("No reader found with name " + readerName));
         Book book = bookRepository.findById_Title(bookTitle)
@@ -101,7 +102,7 @@ public class LibraryService {
     }
 
     @Transactional
-    public void returnBook(String readerName, String bookTitle) {
+    public void returnBook(@NonNull String readerName, String bookTitle) {
         Reader reader = readerRepository.findById(readerName)
                 .orElseThrow(() -> new IllegalArgumentException("No reader found with name " + readerName));
         Book book = bookRepository.findById_Title(bookTitle)

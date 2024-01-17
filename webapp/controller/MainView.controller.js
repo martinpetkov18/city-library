@@ -115,11 +115,11 @@ sap.ui.define([
             url: `/library/search-books?query=${searchEvent.getParameter("query")}&type=${searchType}`,
             dataType: "json",
             success: data => {
-                this.getView().getModel().setProperty("/SearchResults", data);
-                MessageToast.show(data.length === 0 
-                                ? "No books found!" 
-                                : "Search completed!");
-            },
+                const oModel = this.getView().getModel();
+                oModel.setProperty("/SearchResults", data);
+
+                MessageToast.show(data.length === 0 ? "No books found!" : "Search completed!");
+             },
             error: err => MessageToast.show(err.toString()),
             });
         },

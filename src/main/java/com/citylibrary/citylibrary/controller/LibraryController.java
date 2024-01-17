@@ -3,6 +3,8 @@ package com.citylibrary.citylibrary.controller;
 import com.citylibrary.citylibrary.model.Book;
 import com.citylibrary.citylibrary.model.Reader;
 import com.citylibrary.citylibrary.service.LibraryService;
+
+import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,7 +20,7 @@ public class LibraryController {
     }
 
     @PostMapping("/register-reader")
-    public String registerReader(@RequestParam String name) {
+    public String registerReader(@RequestParam @NonNull String name) {
         libraryService.registerReader(name);
         return "Reader registered successfully";
     }
@@ -45,7 +47,7 @@ public class LibraryController {
     }
 
     @GetMapping("/books/reader")
-    public List<Book> getReaderBooks(@RequestParam String readerName) {
+    public List<Book> getReaderBooks(@RequestParam @NonNull String readerName) {
         return libraryService.getReaderBooks(readerName); 
     }
 
@@ -66,13 +68,13 @@ public class LibraryController {
     }
 
     @PutMapping("/borrow-book")
-    public String markBookAsBorrowed(@RequestParam String readerName, @RequestParam String bookTitle) {
+    public String markBookAsBorrowed(@RequestParam @NonNull String readerName, @RequestParam String bookTitle) {
         libraryService.borrowBook(readerName, bookTitle);
         return "Borrowing of book succeeded";
     }
 
     @PutMapping("/return-book")
-    public String markBookAsReturned(@RequestParam String readerName, @RequestParam String bookTitle) {
+    public String markBookAsReturned(@RequestParam @NonNull String readerName, @RequestParam String bookTitle) {
         libraryService.returnBook(readerName, bookTitle);
         return "Returning of book succeeded";
     }
