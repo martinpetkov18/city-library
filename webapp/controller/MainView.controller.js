@@ -108,15 +108,19 @@ sap.ui.define([
         },
 
         onSearchBooks: function (searchEvent) {
+            var searchType = this.getView().byId("searchTypeTitle").getSelected() ? "title" : "author";
+        
             $.ajax({
-                type: "GET",
-                url: `/library/search-books?query=${searchEvent.getParameter("query")}&type=${["title", "author"][this.getView().byId("searchType").getSelectedIndex()]}`,
-                dataType: "json",
-                success: data => {
-                    this.getView().getModel().setProperty("/SearchResults", data);
-                    MessageToast.show(data.length === 0 ? "No books found!" : "Search completed!");
-                },
-                error: err => MessageToast.show(err.toString()),
+            type: "GET",
+            url: `/library/search-books?query=${searchEvent.getParameter("query")}&type=${searchType}`,
+            dataType: "json",
+            success: data => {
+                this.getView().getModel().setProperty("/SearchResults", data);
+                MessageToast.show(data.length === 0 
+                                ? "No books found!" 
+                                : "Search completed!");
+            },
+            error: err => MessageToast.show(err.toString()),
             });
         },
 

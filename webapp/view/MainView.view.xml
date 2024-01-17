@@ -48,14 +48,12 @@
                     <!-- Third Panel -->
                     <Panel width="100%" class="stretch-panel">
                         <Label text="{i18n>searchBooks}" class="bold-label" />
-                        <RadioButtonGroup id="searchType" selectedIndex="0">
-                            <buttons>
-                                <RadioButton text="{i18n>title}" selected="true" />
-                                <RadioButton text="{i18n>author}" />
-                            </buttons>
-                        </RadioButtonGroup>
+                        <HBox>
+                            <RadioButton id="searchTypeTitle" text="{i18n>title}" selected="true"/>
+                            <RadioButton id="searchTypeAuthor" text="{i18n>author}"/>
+                        </HBox>
                         <SearchField id="searchField" search="onSearchBooks" />
-                        <ScrollContainer id="searchBookScrollbar" height="250px" vertical="true">
+                        <ScrollContainer id="searchBookScrollbar" height="282px" vertical="true">
                             <List id="searchResultsList" items="{/SearchResults}">
                                 <StandardListItem title="{id/title}" description="{id/author}" info="{availableQuantity}" />
                             </List>
@@ -72,16 +70,18 @@
 
             <!-- Second Panel -->
             <Panel width="50%" class="stretch-panel">
-                <Label text="{i18n>libraryCatalog}" class="bold-label label-spacing" />
-                <ComboBox id="bookFilterSelect" selectionChange="onShowBooks">
-                    <items>
-                        <core:Item key="all" text="{i18n>showAllBooks}" />
-                        <core:Item key="available" text="{i18n>showAvailableBooks}" />
-                        <core:Item key="reader" text="{i18n>showReaderBooks}" />
-                        <core:Item key="sortedTitle" text="{i18n>showSortedBooksByTitle}" />
-                        <core:Item key="sortedAuthor" text="{i18n>showSortedBooksByAuthor}" />
-                    </items>
-                </ComboBox>
+                <HBox alignItems="Center">
+                    <Label text="{i18n>libraryCatalog}" class="bold-label label-spacing" />
+                    <ComboBox id="bookFilterSelect" selectionChange="onShowBooks">
+                        <items>
+                            <core:Item key="all" text="{i18n>showAllBooks}" />
+                            <core:Item key="available" text="{i18n>showAvailableBooks}" />
+                            <core:Item key="reader" text="{i18n>showReaderBooks}" />
+                            <core:Item key="sortedTitle" text="{i18n>showSortedBooksByTitle}" />
+                            <core:Item key="sortedAuthor" text="{i18n>showSortedBooksByAuthor}" />
+                        </items>
+                    </ComboBox>
+                </HBox>
                 <ScrollContainer id="bookScrollbar" height="349.5px" vertical="true">
                     <List id="booksList" items="{/Books}">
                         <StandardListItem title="{id/title}" description="{id/author}" info="{availableQuantity}" />
@@ -119,12 +119,14 @@
     </HBox>
 
     <Panel>
-        <Label text="{i18n>changeLanguage}" class="bold-label label-spacing"></Label>
-        <Select id="languageSelect" change="onChangeLanguage">
-            <items>
-                <core:ListItem key="en" text="{i18n>english}" />
-                <core:ListItem key="bg" text="{i18n>bulgarian}" />
-            </items>
-        </Select>
+        <HBox alignItems="Center">
+            <Label text="{i18n>changeLanguage}" class="bold-label label-spacing"></Label>
+            <Select id="languageSelect" change="onChangeLanguage">
+                <items>
+                    <core:ListItem key="en" text="{i18n>english}" />
+                    <core:ListItem key="bg" text="{i18n>bulgarian}" />
+                </items>
+            </Select>
+        </HBox>
     </Panel>
 </mvc:View>
