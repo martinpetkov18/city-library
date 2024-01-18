@@ -28,6 +28,20 @@ sap.ui.define([
         },
 
         onRegisterReader: function () {
+            var readerName = this.getView().byId("readerName").getValue();
+
+            if (!readerName) {
+                MessageToast.show('Please enter a reader name!');
+                return;
+            } else {
+                var formattedReaderName = readerName.trim().replace(/\s\s+/g, ' ');
+                var readerExists = this.getView().getModel().getProperty("/Readers").some(reader => reader.name.toLowerCase().trim().replace(/\s\s+/g, ' ') === formattedReaderName.toLowerCase());
+                if (readerExists) {
+                    MessageToast.show('Reader already exists!');
+                    return;
+                }
+            }
+
             this.fetchResult({
                 url: "/library/register-reader",
                 type: "POST",
@@ -96,15 +110,22 @@ sap.ui.define([
         },
 
         onAddBook: function () {
-            this.fetchResult({
-                url: "/library/add-book",
-                type: "POST",
-                data: { title: this.getView().byId("bookTitle").getValue(), author: this.getView().byId("bookAuthor").getValue() },
-                successMessage: "New Book added!",
-                updateMethod: this.fetchBooks,
-                listProp: "/Books",
-                clearInputIds: ["bookTitle", "bookAuthor"]
-            });
+            var title = this.getView().byId("bookTitle").getValue();
+            var author = this.getView().byId("bookAuthor").getValue();
+
+            if (!title || !author) {
+                MessageToast.show('Please enter both a title and an author! ');
+            } else {
+                this.fetchResult({
+                    url: "/library/add-book",
+                    type: "POST",
+                    data: { title, author },
+                    successMessage: "New Book added!",
+                    updateMethod: this.fetchBooks,
+                    listProp: "/Books",
+                    clearInputIds: ["bookTitle", "bookAuthor"]
+                });
+            }
         },
 
         onSearchBooks: function (searchEvent) {
@@ -125,31 +146,39 @@ sap.ui.define([
         },
 
         onBorrowBook: function () {
-            this.fetchResult({
-                url: "/library/borrow-book",
-                type: "PUT",
-                data: {
-                    readerName: this.getView().byId("borrowerName").getValue(),
-                    bookTitle: this.getView().byId("borrowerBookTitle").getValue()
-                },
-                successMessage: "Book borrowed successfully!",
-                updateMethods: [this.fetchBooks, this.fetchReaders],
-                clearInputIds: ["borrowerName", "borrowerBookTitle"]
-            });
+            var readerName = this.getView().byId("borrowerName").getValue();
+            var bookTitle = this.getView().byId("borrowerBookTitle").getValue();
+        
+            if (!readerName || !bookTitle) {
+                MessageToast.show('Please enter both a reader name and a book title!');
+            } else {
+                this.fetchResult({
+                    url: "/library/borrow-book",
+                    type: "PUT",
+                    data: { readerName, bookTitle },
+                    successMessage: "Book borrowed successfully!",
+                    updateMethods: [this.fetchBooks, this.fetchReaders],
+                    clearInputIds: ["borrowerName", "borrowerBookTitle"]
+                });
+            }
         },
 
         onReturnBook: function () {
-            this.fetchResult({
-                url: "/library/return-book",
-                type: "PUT",
-                data: { 
-                    readerName: this.getView().byId("returningReaderName").getValue(), 
-                    bookTitle: this.getView().byId("returningBookTitle").getValue() 
-                },
-                successMessage: "Book returned successfully!",
-                updateMethods: [this.fetchBooks, this.fetchReaders],
-                clearInputIds: ["returningReaderName", "returningBookTitle"]
-            });
+            var readerName = this.getView().byId("returningReaderName").getValue();
+            var bookTitle = this.getView().byId("returningBookTitle").getValue();
+        
+            if (!readerName || !bookTitle) {
+                MessageToast.show('Please enter both a reader name and a book title!');
+            } else {
+                 this.fetchResult({
+                    url: "/library/return-book",
+                    type: "PUT",
+                    data: { readerName, bookTitle },
+                    successMessage: "Book returned successfully!",
+                    updateMethods: [this.fetchBooks, this.fetchReaders],
+                    clearInputIds: ["returningReaderName", "returningBookTitle"]
+                });
+            }
         },
 
         onChangeLanguage: function (languageSelectEvent) {
@@ -209,7 +238,10 @@ sap.ui.define([
                     if(updateMethods.length > 0)
                         updateMethods.forEach(method => method.call(this));
                 },
-                error: () => { MessageToast.show('An error occurred.') }
+                error: (jqXHR) => { 
+                    var message = (jqXHR.status === 400) ? jqXHR.responseText : 'An unexpected error occurred.';
+                    MessageToast.show(message);
+                }
             });
         },
     });

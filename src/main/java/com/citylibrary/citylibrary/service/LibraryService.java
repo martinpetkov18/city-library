@@ -87,26 +87,40 @@ public class LibraryService {
     }
 
     @Transactional
-    public void borrowBook(@NonNull String readerName, String bookTitle) {
-        Reader reader = readerRepository.findById(readerName)
-                .orElseThrow(() -> new IllegalArgumentException("No reader found with name " + readerName));
-        Book book = bookRepository.findById_Title(bookTitle)
-                .orElseThrow(() -> new IllegalArgumentException("No book found with Title " + bookTitle));
+    public void borrowBook(String readerName, String bookTitle) {
+        if (readerName.isEmpty() || bookTitle.isEmpty()) {
+            throw new IllegalArgumentException("Reader name and book title cannot be empty");
+        }
 
-        if (book.isAvailable()) {
+        Reader reader = readerRepository.findByNameIgnoreCase(readerName);
+        
+        if (reader == null) {
+            throw new IllegalArgumentException("No reader found with name: " + readerName);
+        }
+
+        Book book = bookRepository.findById_Title(bookTitle)
+                    .orElseThrow(() -> new IllegalArgumentException("No book found with title: " + bookTitle));
+
+        if(book.isAvailable() && !reader.hasBook(bookTitle)) {
             reader.borrowBook(book);
             book.setAvailableQuantity(book.getAvailableQuantity() - 1);
-        } else {
+        } else if (reader.hasBook(bookTitle)) {
+            throw new IllegalStateException("Reader has already borrowed this book");
+        } else { 
             throw new IllegalStateException("Book is not available");
         }
     }
 
     @Transactional
-    public void returnBook(@NonNull String readerName, String bookTitle) {
+    public void returnBook(String readerName, String bookTitle) {
+        if (readerName.isEmpty() || bookTitle.isEmpty()) {
+            throw new IllegalArgumentException("Reader name and book title cannot be empty");
+        }
+
         Reader reader = readerRepository.findById(readerName)
-                .orElseThrow(() -> new IllegalArgumentException("No reader found with name " + readerName));
+                .orElseThrow(() -> new IllegalArgumentException("No reader found with name: " + readerName));
         Book book = bookRepository.findById_Title(bookTitle)
-                .orElseThrow(() -> new IllegalArgumentException("No book found with Title " + bookTitle));
+                .orElseThrow(() -> new IllegalArgumentException("No book found with title: " + bookTitle));
 
         if (reader.getBorrowedBooks().contains(book)) {
             reader.returnBook(book);

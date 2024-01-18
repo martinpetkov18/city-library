@@ -59,4 +59,8 @@ public class Reader implements Serializable {
     public void returnBook(Book book) {
         this.borrowedBooks.remove(book);
     }
+
+    public boolean hasBook(String bookTitle) {
+        return this.borrowedBooks.stream().anyMatch(book -> book.getId().getTitle().equals(bookTitle));
+    }
 }
